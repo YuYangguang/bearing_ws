@@ -1,0 +1,2 @@
+formation:px4_velocity_control_node:ygc
+-DCATKIN_DEVEL_PREFIX=/home/ros16/WorkSpace/bearing_ws/devel -DCMAKE_INSTALL_PREFIX=/home/ros16/WorkSpace/bearing_ws/install -G Unix Makefiles

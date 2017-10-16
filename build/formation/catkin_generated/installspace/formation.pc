@@ -1,0 +1,8 @@
+prefix=/home/ros16/WorkSpace/bearing_ws/install
+
+Name: formation
+Description: Description of formation
+Version: 0.0.0
+Cflags: -I/home/ros16/WorkSpace/bearing_ws/install/include -I/home/ros16/WorkSpace/bearing_ws/src/ygc/include -I/opt/ros/jade/include -I/usr/include -I/usr/include/eigen3
+Libs: -L/home/ros16/WorkSpace/bearing_ws/install/lib 
+Requires: dynamic_reconfigure message_generation roscpp rospy std_msgs std_srvs mavros ygc

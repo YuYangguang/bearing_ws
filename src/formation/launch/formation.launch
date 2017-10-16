@@ -1,0 +1,8 @@
+<launch>
+
+<arg name="system_id" default="1" />
+ <node name="formation_node" pkg="formation" type="formation_node"  output="screen" >
+      <param name="system_id" value="$(arg system_id)" />
+ </node>
+
+</launch>

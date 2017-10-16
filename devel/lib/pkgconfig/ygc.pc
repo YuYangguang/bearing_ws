@@ -1,0 +1,8 @@
+prefix=/home/ros16/WorkSpace/bearing_ws/devel
+
+Name: ygc
+Description: Description of ygc
+Version: 0.0.0
+Cflags: -I/home/ros16/WorkSpace/bearing_ws/devel/include -I/home/ros16/WorkSpace/bearing_ws/src/ygc/include
+Libs: -L/home/ros16/WorkSpace/bearing_ws/devel/lib -lygc
+Requires: roscpp rospy std_msgs std_srvs mavros message_runtime

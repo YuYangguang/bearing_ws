@@ -1,0 +1,8 @@
+<launch>
+
+<arg name="uav_num" default="" />
+ <node name="ygc_node" pkg="ygc" type="ygc_node"  output="screen" >
+      <param name="uav_num" value="$(arg uav_num)" />
+ </node>
+
+</launch>

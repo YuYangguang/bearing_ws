@@ -1,0 +1,2 @@
+/usr/bin/X11/ar qc ../devel/lib/libformation.a  CMakeFiles/formation.dir/src/formation.cpp.o
+/usr/bin/X11/ranlib ../devel/lib/libformation.a
