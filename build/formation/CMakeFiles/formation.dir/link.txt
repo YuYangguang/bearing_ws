@@ -1,2 +1,0 @@
-/usr/bin/ar qc /home/ros16/WorkSpace/bearing_ws/devel/lib/libformation.a  CMakeFiles/formation.dir/src/formation.cpp.o
-/usr/bin/ranlib /home/ros16/WorkSpace/bearing_ws/devel/lib/libformation.a

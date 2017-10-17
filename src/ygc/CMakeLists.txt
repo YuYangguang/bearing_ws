@@ -27,7 +27,10 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
 FILES
 Bearing2D.msg
-GroupBearing.msg)
+GroupBearing.msg
+Vector2D.msg
+DataRecord.msg
+)
 
 generate_messages(
 DEPENDENCIES

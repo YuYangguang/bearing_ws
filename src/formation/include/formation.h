@@ -26,7 +26,31 @@
 #include <tf/tf.h>
 #include <tf/transform_datatypes.h>
 #include "ygc/GroupBearing.h"
+#include "Eigen/Eigen"
+
+#define YGC_HOVER 0
+#define YGC_TAKEOFF 1
+#define YGC_LAND 2
+#define YGC_ENCIRCLE 3
+#define YGC_CIRCLE 4
+
 namespace smarteye {
+float ValueLimit(float value,float max,float min);
+class heiCtrller
+{
+public:
+    heiCtrller();
+    ~heiCtrller();
+    double currentHei;
+    double targetHei;
+    float hei_kp;
+    float hei_ki;
+    float hei_kd;
+    float hei_bias;
+    float previousErr;
+    float ei;  //控制器积分项
+    float cacOutput();
+};
 class Formation
 {
 public:
@@ -35,35 +59,47 @@ public:
     double uavRollENU, uavPitchENU, uavYawENU;
     ros::Timer  formationUpdateTimer;
     boost::shared_ptr<ros::NodeHandle> nh;
-    mavros_msgs::State stateFCU_;
     std::string num2str(int i);
     void ReceiveStateInfo(const mavros_msgs::State::ConstPtr& msg);
     void ReceiveKeybdCmd(const keyboard::Key &key);
     ygc::GroupBearing mutualBearing;
     ygc::GroupBearing targetBearing;
+    ygc::GroupBearing expBearing;
+    heiCtrller heiCtr;
+
 private:
     int updateHz;
     int systemID;
-    float k_alpha;
-    float k_beta;
+    float env_k_alpha;
+    float env_k_beta;
+    int uavState;
     ros::ServiceClient paramClient;
     ros::ServiceClient arming_client;
     ros::ServiceClient setModeClient;
     ros::ServiceClient takoffClient;
-    mavros_msgs::State current_state;
+    mavros_msgs::State px4State;
     void update(const ros::TimerEvent& event);
-    ros::Publisher setPositionPublisher;
+    ros::Publisher setPositionPub;
+    ros::Publisher setVelPub;
     ros::Subscriber keyboardSub;
-    ros::Subscriber state_sub;
+    ros::Subscriber px4StateSub;
     ros::Subscriber localPoseSub;
     ros::Subscriber mutualBearingSub;
     ros::Subscriber targetBearingSub;
+    ros::Subscriber expBearingSub;
     geometry_msgs::PoseStamped desiredPose;
     geometry_msgs::PoseStamped positionSet;
+    geometry_msgs::TwistStamped velocitySet;
     geometry_msgs::PoseStamped localPose;
     void ReceiveLocalPose(const geometry_msgs::PoseStampedConstPtr& msg);
     void ReceiveMulBearing(const ygc::GroupBearingConstPtr &msg);
     void ReceiveTarBearing(const ygc::GroupBearingConstPtr &msg);
+    void ReceiveExpBearing(const ygc::GroupBearingConstPtr &msg);
+    void initParamServer();
+    void takeoffCtr();
+    void landCtr();
+    void encircleCtr(double targetHei);  //输入，期望的高度
+
 
 };
 

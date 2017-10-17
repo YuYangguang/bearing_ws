@@ -29,35 +29,30 @@ ygcClass::ygcClass(int argc, char **argv, const char *name)
         exit(0);
     }
 
-    currentState = new mavros_msgs::State[uavNum];
-    paramClient = new ros::ServiceClient[uavNum];
-    arming_client = new ros::ServiceClient[uavNum];
-    setModeClient = new ros::ServiceClient[uavNum];
-//    setPositionPublisher = new ros::Publisher[uavNum];
+//    currentState = new mavros_msgs::State[uavNum];
+//    paramClient = new ros::ServiceClient[uavNum];
+//    arming_client = new ros::ServiceClient[uavNum];
+//    setModeClient = new ros::ServiceClient[uavNum];
+    //    setPositionPublisher = new ros::Publisher[uavNum];
     allPositions = new geometry_msgs::Vector3[uavNum];
     mutualBearing.bearings.resize(uavNum);
     targetBearing.bearings.resize(uavNum);
     expBearing.bearings.resize(uavNum*2);
     std::string uavName;
-    for(int i=0;i<uavNum;i++)
-    {
-        uavName = "/uav"+num2str(i+1);
-        arming_client[i] = nh->serviceClient<mavros_msgs::CommandBool>(uavName+"/mavros/cmd/arming");
-        setModeClient[i] = nh->serviceClient<mavros_msgs::SetMode>(uavName+"/mavros/set_mode");
-//        setPositionPublisher[i] = nh->advertise<geometry_msgs::PoseStamped>
-//                (uavName+"/mavros/setpoint_position/local",10);
+//    for(int i=0;i<uavNum;i++)
+//    {
+//        uavName = "/uav"+num2str(i+1);
+//        arming_client[i] = nh->serviceClient<mavros_msgs::CommandBool>(uavName+"/mavros/cmd/arming");
+//        setModeClient[i] = nh->serviceClient<mavros_msgs::SetMode>(uavName+"/mavros/set_mode");
+        //        setPositionPublisher[i] = nh->advertise<geometry_msgs::PoseStamped>
+        //                (uavName+"/mavros/setpoint_position/local",10);
 
-    }
+//    }
     targetPos.x = 0;
     targetPos.y = 0;
     targetPos.z = 0;
     rotateTheta = 0;
-    rotateSpeed = YGC_PI/60;
-    stateSub[0] = nh->subscribe("/uav1/mavros/state", 5,&ygcClass::ReceiveStateInfo1, this);
-    stateSub[1] = nh->subscribe("/uav2/mavros/state", 5,&ygcClass::ReceiveStateInfo2, this);
-    stateSub[2] = nh->subscribe("/uav3/mavros/state", 5,&ygcClass::ReceiveStateInfo3, this);
-    stateSub[3] = nh->subscribe("/uav4/mavros/state", 5,&ygcClass::ReceiveStateInfo4, this);
-    stateSub[4] = nh->subscribe("/uav5/mavros/state", 5,&ygcClass::ReceiveStateInfo5, this);
+    rotateSpeed = -0;
     mutualBearingPub = nh->advertise<ygc::GroupBearing>("/ygc/mutual_bearing",2);
     targetBearingPub = nh->advertise<ygc::GroupBearing>("/ygc/target_bearing",2);
     expBearingPub = nh->advertise<ygc::GroupBearing>("/ygc/expected_bearing",2);
@@ -66,18 +61,15 @@ ygcClass::ygcClass(int argc, char **argv, const char *name)
     ygcUpdateTimer = nh->createTimer(ros::Duration(updateTime),&ygcClass::update, this);
     bearingUpdateTimer = nh->createTimer(ros::Duration(0.02),&ygcClass::bearingUpdate, this);
     bearingInfoInit();
-
+    uavForRec = 1;
 }
 
 
 
 ygcClass::~ygcClass()
 {
-    delete[] currentState;
-    delete[] paramClient;
-    delete[] arming_client;
-    delete[] setModeClient;
-//    delete[] setPositionPublisher;
+
+    //    delete[] setPositionPublisher;
     delete[] allPositions;
 }
 
@@ -90,117 +82,100 @@ std::string ygcClass::num2str(int i)
     return ss.str();
 }
 
-void ygcClass::ReceiveStateInfo1(const mavros_msgs::State::ConstPtr &msg)
+void ygcClass::ReceiveCmdInfo1(const geometry_msgs::TwistStamped::ConstPtr &msg)
 {
-    currentState[0] = *msg;
+
 }
 
-void ygcClass::ReceiveStateInfo2(const mavros_msgs::State::ConstPtr &msg)
+void ygcClass::ReceiveCmdInfo2(const geometry_msgs::TwistStamped::ConstPtr &msg)
 {
-    currentState[1] = *msg;
+
 }
 
-void ygcClass::ReceiveStateInfo3(const mavros_msgs::State::ConstPtr &msg)
-{
-    currentState[2] = *msg;
-}
 
-void ygcClass::ReceiveStateInfo4(const mavros_msgs::State::ConstPtr &msg)
-{
-    currentState[3] = *msg;
-}
-
-void ygcClass::ReceiveStateInfo5(const mavros_msgs::State::ConstPtr &msg)
-{
-    currentState[4] = *msg;
-}
 
 void ygcClass::ReceiveKeybdCmd(const keyboard::Key &key)
 {
     switch(key.code)
     {
-    case 'a':   //arm the vehicle
-    {
-        for(int i=0;i<uavNum;i++)
-        {
-            if(currentState[i].armed)
-            {
-                ROS_WARN(" vehicle %d is already armed!",i+1);
-            }
-            else
-            {
-                mavros_msgs::CommandBool arm_cmd;
-                arm_cmd.request.value = true;
-                if( arming_client[i].call(arm_cmd) && arm_cmd.response.success)
-                {
-                    ROS_INFO("Vehicle %d armed",i+1);
-                }
-                else
-                {
-                    ROS_WARN("failed to arm vehicle");
-                }
-            }
-        }
-        break;
-    }
-    case 'd':   //disarm
-    {
-        for(int i=0;i<uavNum;i++)
-        {
-            if(!currentState[i].armed)
-            {
-                ROS_WARN("the vehicle %d is already disarmed",i+1);
-            }
-            else
-            {
-                mavros_msgs::CommandBool arm_cmd;
-                arm_cmd.request.value = true;
-                if( arming_client[i].call(arm_cmd) && arm_cmd.response.success)
-                {
-                    ROS_INFO("Vehicle %d disarmed",i+1);
-                }
-                else
-                {
-                    ROS_WARN("failed to disarm vehicle %d",i+1);
-                }
+    //    case 'q':   //arm the vehicle
+    //    {
+    //        for(int i=0;i<uavNum;i++)
+    //        {
+    //            if(currentState[i].armed)
+    //            {
+    //                ROS_WARN(" vehicle %d is already armed!",i+1);
+    //            }
+    //            else
+    //            {
+    //                mavros_msgs::CommandBool arm_cmd;
+    //                arm_cmd.request.value = true;
+    //                if( arming_client[i].call(arm_cmd) && arm_cmd.response.success)
+    //                {
+    //                    ROS_INFO("Vehicle %d armed",i+1);
+    //                }
+    //                else
+    //                {
+    //                    ROS_WARN("failed to arm vehicle");
+    //                }
+    //            }
+    //        }
+    //        break;
+    //    }
+    //    case 'd':   //disarm
+    //    {
+    //        for(int i=0;i<uavNum;i++)
+    //        {
+    //            if(!currentState[i].armed)
+    //            {
+    //                ROS_WARN("the vehicle %d is already disarmed",i+1);
+    //            }
+    //            else
+    //            {
+    //                mavros_msgs::CommandBool arm_cmd;
+    //                arm_cmd.request.value = true;
+    //                if( arming_client[i].call(arm_cmd) && arm_cmd.response.success)
+    //                {
+    //                    ROS_INFO("Vehicle %d disarmed",i+1);
+    //                }
+    //                else
+    //                {
+    //                    ROS_WARN("failed to disarm vehicle %d",i+1);
+    //                }
 
-            }
-        }
-        break;
-    }
-    case 'o':   //set offboard mode
+    //            }
+    //        }
+    //        break;
+    //    }
+    //    case 'o':   //set offboard mode
+    //    {
+    //        for(int i=0;i<uavNum;i++)
+    //        {
+    //            mavros_msgs::SetMode setmodeCMD;
+    //            setmodeCMD.request.custom_mode = "OFFBOARD";
+    //            if(setModeClient[i].call(setmodeCMD) && setmodeCMD.response.success)
+    //            {
+    //                ROS_INFO("the mode of vehicle %d has changed to offboard",i+1);
+    //            }
+    //            else
+    //            {
+    //                ROS_WARN("failed to set vehicle %d offboard mode!",i+1);
+    //            }
+    //        }
+    //        break;
+    //    }
+    //    case 't':   //take off
+    //    {
+    //        ygcMode = YGC_WORK;
+    //        positionSet.pose.position.x = 0;
+    //        positionSet.pose.position.y = 0;
+    //        positionSet.pose.position.z = 2;
+    //        break;
+    //    }
+    case 'q':
     {
-        for(int i=0;i<uavNum;i++)
-        {
-            mavros_msgs::SetMode setmodeCMD;
-            setmodeCMD.request.custom_mode = "OFFBOARD";
-            if(setModeClient[i].call(setmodeCMD) && setmodeCMD.response.success)
-            {
-                ROS_INFO("the mode of vehicle %d has changed to offboard",i+1);
-            }
-            else
-            {
-                ROS_WARN("failed to set vehicle %d offboard mode!",i+1);
-            }
-        }
-        break;
+        rotateSpeed = -YGC_PI/15;
     }
-//    case 't':   //take off
-//    {
-//        ygcMode = YGC_WORK;
-//        positionSet.pose.position.x = 0;
-//        positionSet.pose.position.y = 0;
-//        positionSet.pose.position.z = 2;
-//        break;
-//    }
-//    case 'l': //land
-//    {
-//        ygcMode = YGC_WORK;
-//        positionSet.pose.position.x = 0;
-//        positionSet.pose.position.y = 0;
-//        positionSet.pose.position.z = 0;
-//        break;
-//    }
 
     }
 }
@@ -213,17 +188,24 @@ void ygcClass::ReceiveGazeboInfo(const gazebo_msgs::ModelStates::ConstPtr &msg)
     //iris_+ID号，因此这个变量为6,如命名规则变更，请变更数字。
     for(int i=0;i<dataSize;i++)
     {
+
         std::string nameModel ="iris_";
         std::string targetName = "targe";
         std::string temp= msg->name[i].substr(0,numberPos-1);
         if(strcmp(msg->name[i].substr(0,numberPos-1).c_str(),nameModel.c_str()) == 0)
         {
+
             std::string uavID_string=msg->name[i].substr(numberPos-1);
             int IDLength = uavID_string.length();
             char* uavID_char = new char[IDLength];
             uavID_string.copy(uavID_char,IDLength,0);
             int uavID = atoi(uavID_char);
             delete[] uavID_char;  //释放内存
+            if(uavID == uavForRec)
+            {
+                uavForRec.trueVel.x = msg->twist[i].linear.x;
+                uavForRec.trueVel.y = msg->twist[i].linear.y;
+            }
             if(uavID >uavNum)
             {
                 ROS_WARN("vehicle ID is beyond the number of vehicle");
@@ -247,14 +229,14 @@ void ygcClass::ReceiveGazeboInfo(const gazebo_msgs::ModelStates::ConstPtr &msg)
 
 void ygcClass::update(const ros::TimerEvent &event)
 {
-//    if(ygcMode == YGC_WORK)
-//    {
-//        for(int i=0;i<uavNum;i++)
-//        {
-//            positionSet.pose.position.z = 1;
-//            setPositionPublisher[i].publish(positionSet);
-//        }
-//    }
+    //    if(ygcMode == YGC_WORK)
+    //    {
+    //        for(int i=0;i<uavNum;i++)
+    //        {
+    //            positionSet.pose.position.z = 1;
+    //            setPositionPublisher[i].publish(positionSet);
+    //        }
+    //    }
     mutualBearingPub.publish(mutualBearing);
     targetBearingPub.publish(targetBearing);
     expBearingPub.publish(expBearing);
@@ -263,6 +245,8 @@ void ygcClass::update(const ros::TimerEvent &event)
 
 void ygcClass::bearingUpdate(const ros::TimerEvent &event)
 {
+    targetPos.x = 0;
+    targetPos.y = 0;
     rotateTheta = rotateTheta + rotateSpeed*0.02;
     for(int i=0;i<uavNum;i++)
     {

@@ -1,2 +1,0 @@
-/usr/bin/ar qc /home/ros16/WorkSpace/bearing_ws/devel/lib/libygc.a  CMakeFiles/ygc.dir/src/ygc.cpp.o
-/usr/bin/ranlib /home/ros16/WorkSpace/bearing_ws/devel/lib/libygc.a

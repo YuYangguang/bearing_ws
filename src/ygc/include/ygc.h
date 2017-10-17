@@ -34,9 +34,8 @@
 #include "Eigen/Eigen"
 #include "ygc/Bearing2D.h"
 #include "ygc/GroupBearing.h"
+#include "ygc/DataRecord.h"
 
-#define YGC_IDLE 0
-#define YGC_WORK 1
 #define YGC_PI 3.1415926
 
 
@@ -51,6 +50,7 @@ public:
 
     int uavNum;
     int ygcMode;
+    int uavForRec;   //需要记录数据的飞机号
     ros::Timer  ygcUpdateTimer;
     ros::Timer  bearingUpdateTimer;
     boost::shared_ptr<ros::NodeHandle> nh;
@@ -62,11 +62,9 @@ public:
     ygc::GroupBearing mutualBearing;
     ygc::GroupBearing targetBearing;
     ygc::GroupBearing expBearing;  //期望的方位角信息
-    void ReceiveStateInfo1(const mavros_msgs::State::ConstPtr& msg);
-    void ReceiveStateInfo2(const mavros_msgs::State::ConstPtr& msg);
-    void ReceiveStateInfo3(const mavros_msgs::State::ConstPtr& msg);
-    void ReceiveStateInfo4(const mavros_msgs::State::ConstPtr& msg);
-    void ReceiveStateInfo5(const mavros_msgs::State::ConstPtr& msg);
+    ygc::DataRecord dataRec;
+    void ReceiveCmdInfo1(const geometry_msgs::TwistStamped::ConstPtr& msg);
+    void ReceiveCmdInfo2(const geometry_msgs::TwistStamped::ConstPtr& msg);
     void ReceiveKeybdCmd(const keyboard::Key &key);
     void ReceiveGazeboInfo(const gazebo_msgs::ModelStates::ConstPtr& msg);
 
@@ -74,17 +72,17 @@ public:
 private:
     int updateHz;
     int systemID;
-    ros::ServiceClient* paramClient;
-    ros::ServiceClient* arming_client;
-    ros::ServiceClient* setModeClient;
-    ros::ServiceClient* takoffClient;
-    mavros_msgs::State* currentState;
+//    ros::ServiceClient* paramClient;
+//    ros::ServiceClient* arming_client;
+//    ros::ServiceClient* setModeClient;
+
+
 //    ros::Publisher* setPositionPublisher;
     ros::Publisher mutualBearingPub;
     ros::Publisher targetBearingPub;
     ros::Publisher expBearingPub;  //期望方位发布者
     ros::Subscriber keyboardSub;
-    ros::Subscriber stateSub[5];   //若无人机数量超过5,此处需要修改
+    ros::Subscriber velCmdSub;   //订阅无人机速度命令消息
     ros::Subscriber gazeboInfoSub;
     geometry_msgs::PoseStamped positionSet;
     geometry_msgs::PoseStamped localPose;

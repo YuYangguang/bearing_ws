@@ -1,2 +1,0 @@
-/usr/bin/X11/ar qc ../devel/lib/libygc.a  CMakeFiles/ygc.dir/src/ygc.cpp.o
-/usr/bin/X11/ranlib ../devel/lib/libygc.a

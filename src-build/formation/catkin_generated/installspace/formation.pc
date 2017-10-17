@@ -1,8 +1,0 @@
-prefix=/usr/local
-
-Name: formation
-Description: Description of formation
-Version: 0.0.0
-Cflags: -I/usr/local/include -I/home/ros16/WorkSpace/bearing_ws/src/ygc/include -I/opt/ros/jade/include -I/usr/include -I/usr/include/eigen3
-Libs: -L/usr/local/lib 
-Requires: dynamic_reconfigure message_generation roscpp rospy std_msgs std_srvs mavros ygc

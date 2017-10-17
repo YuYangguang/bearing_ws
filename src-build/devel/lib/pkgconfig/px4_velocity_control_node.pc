@@ -1,8 +1,0 @@
-prefix=/home/ros16/WorkSpace/bearing_ws/src-build/devel
-
-Name: px4_velocity_control_node
-Description: Description of px4_velocity_control_node
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/ros16/WorkSpace/bearing_ws/src-build/devel/lib 
-Requires: 

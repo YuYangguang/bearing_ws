@@ -1,8 +1,0 @@
-prefix=/usr/local
-
-Name: px4_velocity_control_node
-Description: Description of px4_velocity_control_node
-Version: 0.0.0
-Cflags: 
-Libs: -L/usr/local/lib 
-Requires: 

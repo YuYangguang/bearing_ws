@@ -63,12 +63,12 @@ target_link_libraries(formation_node
 )
 add_dependencies(formation_node ${catkin_EXPORTED_TARGETS} ygc)
 
-add_executable(dynamic_reconfigure_node src/dynamic_reconfigure_node.cpp) 
+#add_executable(dynamic_reconfigure_node src/dynamic_reconfigure_node.cpp) 
 # for dynamic reconfigure  
-add_dependencies(dynamic_reconfigure_node formation_gencfg)  
+#add_dependencies(dynamic_reconfigure_node formation_gencfg)  
 # for python dynamic client  
-add_dependencies(dynamic_reconfigure_node formation_generate_messages_cpp)  
-target_link_libraries(dynamic_reconfigure_node ${catkin_LIBRARIES})  
+#add_dependencies(dynamic_reconfigure_node formation_generate_messages_cpp)  
+#target_link_libraries(dynamic_reconfigure_node ${catkin_LIBRARIES})  
 
 ###############INSTALL#####################
 install(TARGETS formation formation_node
