@@ -29,16 +29,11 @@ ygcClass::ygcClass(int argc, char **argv, const char *name)
         exit(0);
     }
 
-//    currentState = new mavros_msgs::State[uavNum];
-//    paramClient = new ros::ServiceClient[uavNum];
-//    arming_client = new ros::ServiceClient[uavNum];
-//    setModeClient = new ros::ServiceClient[uavNum];
-    //    setPositionPublisher = new ros::Publisher[uavNum];
     allPositions = new geometry_msgs::Vector3[uavNum];
     mutualBearing.bearings.resize(uavNum);
     targetBearing.bearings.resize(uavNum);
     expBearing.bearings.resize(uavNum*2);
-    std::string uavName;
+    std::string tempName;
 //    for(int i=0;i<uavNum;i++)
 //    {
 //        uavName = "/uav"+num2str(i+1);
@@ -62,6 +57,9 @@ ygcClass::ygcClass(int argc, char **argv, const char *name)
     bearingUpdateTimer = nh->createTimer(ros::Duration(0.02),&ygcClass::bearingUpdate, this);
     bearingInfoInit();
     uavForRec = 1;
+    tempName = "/uav"+num2str(uavForRec);
+    velCmdSub = nh->subscribe(tempName+"/mavros/setpoint_velocity/cmd_vel", 5,&ygcClass::ReceiveCmdInfo1, this);
+    dataRecPub = nh->advertise<ygc::DataRecord>("ygc/dataRecorded",5);
 }
 
 
@@ -84,7 +82,8 @@ std::string ygcClass::num2str(int i)
 
 void ygcClass::ReceiveCmdInfo1(const geometry_msgs::TwistStamped::ConstPtr &msg)
 {
-
+     dataRec.cmdVel.x = msg->twist.linear.x;
+     dataRec.cmdVel.y = msg->twist.linear.y;
 }
 
 void ygcClass::ReceiveCmdInfo2(const geometry_msgs::TwistStamped::ConstPtr &msg)
@@ -203,8 +202,8 @@ void ygcClass::ReceiveGazeboInfo(const gazebo_msgs::ModelStates::ConstPtr &msg)
             delete[] uavID_char;  //释放内存
             if(uavID == uavForRec)
             {
-                uavForRec.trueVel.x = msg->twist[i].linear.x;
-                uavForRec.trueVel.y = msg->twist[i].linear.y;
+                dataRec.trueVel.x = msg->twist[i].linear.x;
+                dataRec.trueVel.y = msg->twist[i].linear.y;
             }
             if(uavID >uavNum)
             {
@@ -240,6 +239,7 @@ void ygcClass::update(const ros::TimerEvent &event)
     mutualBearingPub.publish(mutualBearing);
     targetBearingPub.publish(targetBearing);
     expBearingPub.publish(expBearing);
+    dataRecPub.publish(dataRec);
 
 }
 

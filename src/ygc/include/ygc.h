@@ -81,6 +81,7 @@ private:
     ros::Publisher mutualBearingPub;
     ros::Publisher targetBearingPub;
     ros::Publisher expBearingPub;  //期望方位发布者
+    ros::Publisher dataRecPub;
     ros::Subscriber keyboardSub;
     ros::Subscriber velCmdSub;   //订阅无人机速度命令消息
     ros::Subscriber gazeboInfoSub;
