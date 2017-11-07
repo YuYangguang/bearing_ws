@@ -2,8 +2,10 @@
 
 <node name="keyboard" pkg="keyboard" type="keyboard"/>
 <arg name="uav_num" default="5" />
+<arg name="TriggerFlag" default="true" />
  <node name="ygc_node" pkg="ygc" type="ygc_node"  output="screen" >
       <param name="uav_num" value="$(arg uav_num)" />
+      <param name="TriggerFlag" value="$(arg TriggerFlag)" />
  </node>
 
 </launch>

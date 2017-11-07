@@ -1,0 +1,3 @@
+# request aliveVechicles from commander
+--- 
+uint8[] aliveVehicle

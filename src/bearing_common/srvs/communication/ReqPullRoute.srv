@@ -1,0 +1,6 @@
+# Pull other vehicles' routes from station
+# return corresponding route
+
+uint8 id
+--- 
+mavros_msgs/Waypoint[] other_route

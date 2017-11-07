@@ -1,8 +1,10 @@
 <launch>
 
-<arg name="system_id" default="2" />
+<arg name="system_id" default="1" />
+<arg name="viconName"  default="/vicon/nuflie02/nuflie02"/>
  <node name="formation_node" pkg="formation" type="formation_node"  output="screen" >
       <param name="system_id" value="$(arg system_id)" />
+     <param name="viconName" value="$(arg viconName)" />
  </node>
 
 </launch>

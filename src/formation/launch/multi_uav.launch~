@@ -8,6 +8,7 @@
   <arg name="uav3_id" default="3" /> 
   <arg name="uav4_id" default="4" /> 
   <arg name="uav5_id" default="5" /> 
+ <arg name="target_id" default="0" /> 
     <include file="$(find formation)/launch/formation.launch">
       <arg name="system_id" value="$(arg uav1_id)" />
     </include>
@@ -33,6 +34,11 @@
   <group ns="uav5">
     <include file="$(find formation)/launch/formation.launch">
       <arg name="system_id" value="$(arg uav5_id)" />
+    </include>
+  </group>
+  <group ns="uav0">
+    <include file="$(find formation)/launch/formation.launch">
+      <arg name="system_id" value="$(arg target_id)" />
     </include>
   </group>
 
