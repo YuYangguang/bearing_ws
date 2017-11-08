@@ -13,7 +13,7 @@ ygcClass::ygcClass(int argc, char **argv, const char *name)
     sleep(1);
     uavNum = 5;
     systemID = -1;
-    updateHz = 40;
+    updateHz = 20;
     float updateTime = 1.0/updateHz;
     ros::init(argc, argv, "ygc_node");
     nh = boost::make_shared<ros::NodeHandle>("~");
@@ -22,6 +22,11 @@ ygcClass::ygcClass(int argc, char **argv, const char *name)
     if(IsGotParam)
     {
         ROS_INFO("got system id successfully and uav number is %d",uavNum);
+        if(uavNum < 1)
+        {
+            ROS_ERROR("invalid uav total number, and the node is shut down");
+            exit(0);
+        }
     }
     else
     {
@@ -45,6 +50,24 @@ ygcClass::ygcClass(int argc, char **argv, const char *name)
         ROS_ERROR("failed to get trigger flag and node is shut down");
         exit(0);
     }
+    IsGotParam = nh->getParam("SimuFlag",IsUseSimu);
+    if(IsGotParam)
+    {
+        if(IsUseSimu)
+        {
+            ROS_INFO("This station is in simulation mode!");
+        }
+        else
+        {
+            ROS_INFO("This station is in real fly mode");
+        }
+    }
+    else
+    {
+        ROS_ERROR("failed to get simulation flag and node is shut down");
+        exit(0);
+    }
+
 
     allPositions = new geometry_msgs::Vector3[uavNum];
     mutualBearing.bearings.resize(uavNum);
@@ -76,11 +99,13 @@ ygcClass::ygcClass(int argc, char **argv, const char *name)
     gazeboInfoSub = nh->subscribe("/gazebo/model_states", 5,&ygcClass::ReceiveGazeboInfo, this);
     keyboardSub= nh->subscribe("/keyboard/keydown",1,&ygcClass::ReceiveKeybdCmd,this);
     ygcUpdateTimer = nh->createTimer(ros::Duration(updateTime),&ygcClass::update, this);
-    bearingUpdateTimer = nh->createTimer(ros::Duration(0.025),&ygcClass::bearingUpdate, this);
+    bearingUpdateTimer = nh->createTimer(ros::Duration(0.03),&ygcClass::bearingUpdate, this);
     bearingInfoInit();
     uavForRec = 1;
     tempName = "/uav"+num2str(uavForRec);
     velCmdSub = nh->subscribe(tempName+"/mavros/local_position/velocity", 5,&ygcClass::ReceiveCmdInfo1, this);
+    uavPosSub1= nh->subscribe("/vicon/nuflie02/nuflie02", 10,
+                              &ygcClass::ReceiUavPos1,this);
     dataRecPub = nh->advertise<bearing_common::DataRecord>("/ygc/dataRecorded",5);
     targetPosePub = nh->advertise<nav_msgs::Odometry>("/ygc/targetPose",5);
     dotBearingPub = nh->advertise<bearing_common::GroupBearing>("/ygc/dot_bearing",2);
@@ -145,7 +170,7 @@ void ygcClass::ReceiveKeybdCmd(const keyboard::Key &key)
     }
     case 'q':
     {
-        rotateSpeed = -YGC_PI/15;
+        rotateSpeed = -YGC_PI/40;
     }
 
     }
@@ -280,6 +305,13 @@ void ygcClass::update(const ros::TimerEvent &event)
     dataRecPub.publish(dataRec);
     targetPosePub.publish(targetPos);  //发布飞机速度
     agentVelPub.publish(agentVel);
+    if(uavNum == 1)
+    {
+        float dis = sqrt(pow((allPositions[0].x -targetPos.pose.pose.position.x),2)+
+                   pow((allPositions[0].y -targetPos.pose.pose.position.y),2));
+        targetBearing.bearings[0].x = (allPositions[0].x-targetPos.pose.pose.position.x)/dis;
+        targetBearing.bearings[0].y = (allPositions[0].y-targetPos.pose.pose.position.y)/dis;
+    }
     if(coordMethod == IDLE)
     {
         mutualBearingPub.publish(mutualBearing);
@@ -411,7 +443,6 @@ void ygcClass::update(const ros::TimerEvent &event)
 
         }
 
-
     }
     else
     {
@@ -425,7 +456,17 @@ void ygcClass::update(const ros::TimerEvent &event)
 void ygcClass::bearingUpdate(const ros::TimerEvent &event)
 {
 
-    rotateTheta = rotateTheta + rotateSpeed*0.02;
+    rotateTheta = rotateTheta + rotateSpeed;
+    if(uavNum == 1)
+    {
+        float dis = sqrt(pow((allPositions[0].x -targetPos.pose.pose.position.x),2)+
+                pow((allPositions[0].y -targetPos.pose.pose.position.y),2));
+        if((dis-1E-5)>0)
+        {
+            targetBearing.bearings[0].x = (allPositions[0].x-targetPos.pose.pose.position.x)/dis;
+            targetBearing.bearings[0].y = (allPositions[0].y-targetPos.pose.pose.position.y)/dis;
+        }
+    }
     if(IsUseEventTri)
     {
         double updateTime = ros::Time::now().toNSec();
@@ -463,7 +504,6 @@ void ygcClass::bearingUpdate(const ros::TimerEvent &event)
         }
     }
     cacExpBearing();
-
 }
 
 void ygcClass::cacExpBearing()
@@ -475,35 +515,51 @@ void ygcClass::cacExpBearing()
     Eigen::Matrix2d rotateMatrix;
     rotateMatrix << cos(rotateTheta),-sin(rotateTheta),
             sin(rotateTheta),cos(rotateTheta);
-    for(int i=0;i<uavNum;i++)
-    {
-        double agentTheta = 2*YGC_PI*i/uavNum;
-        double nextAgentTheta = 2*YGC_PI*(i+1)/uavNum;
-        float dis =2*sin(YGC_PI/uavNum);  //单位圆上正多边形的边长
-        if(i== (uavNum-1))
-        {
-            initDesBearing[0] = (sin(agentTheta)-sin(0))/dis;
-            initDesBearing[1] = (cos(agentTheta)-cos(0))/dis;
 
-        }
-        else
-        {
-            initDesBearing[0] = (sin(agentTheta)-sin(nextAgentTheta))/dis;
-            initDesBearing[1] = (cos(agentTheta)-cos(nextAgentTheta))/dis;
-        }
+    if(uavNum == 1)
+    {
+
+        expBearing.bearings[0].x = 0;
+        expBearing.bearings[0].y = -1;
+        initDesBearing[0] = 0;
+        initDesBearing[1] = -1;
         desiredBearing = rotateMatrix*initDesBearing;
-        expBearing.bearings[i].x = desiredBearing[0];
-        expBearing.bearings[i].y = desiredBearing[1];
-        initTarDesBearing[0] = sin(agentTheta);
-        initTarDesBearing[1] = cos(agentTheta);
-        desiredBearing = rotateMatrix*initTarDesBearing;
-        if(desiredBearing.norm()>1.01)
+        expBearing.bearings[1].x = desiredBearing[0];
+        expBearing.bearings[1].y = desiredBearing[1];
+
+    }
+    else
+    {
+        for(int i=0;i<uavNum;i++)
         {
-            ROS_ERROR("the norm of desired Bearing is impossibel to be more than 1!");
+            double agentTheta = 2*YGC_PI*i/uavNum;
+            double nextAgentTheta = 2*YGC_PI*(i+1)/uavNum;
+            float dis =2*sin(YGC_PI/uavNum);  //单位圆上正多边形的边长
+            if(i== (uavNum-1))
+            {
+                initDesBearing[0] = (sin(agentTheta)-sin(0))/dis;
+                initDesBearing[1] = (cos(agentTheta)-cos(0))/dis;
+
+            }
+            else
+            {
+                initDesBearing[0] = (sin(agentTheta)-sin(nextAgentTheta))/dis;
+                initDesBearing[1] = (cos(agentTheta)-cos(nextAgentTheta))/dis;
+            }
+            desiredBearing = rotateMatrix*initDesBearing;
+            expBearing.bearings[i].x = desiredBearing[0];
+            expBearing.bearings[i].y = desiredBearing[1];
+            initTarDesBearing[0] = sin(agentTheta);
+            initTarDesBearing[1] = cos(agentTheta);
+            desiredBearing = rotateMatrix*initTarDesBearing;
+            if(desiredBearing.norm()>1.01)
+            {
+                ROS_ERROR("the norm of desired Bearing is impossibel to be more than 1!");
+            }
+            //与目标的期望方位从uavNum+1开始，到2×uavNum
+            expBearing.bearings[i+uavNum].x = desiredBearing[0];
+            expBearing.bearings[i+uavNum].y = desiredBearing[1];
         }
-        //与目标的期望方位从uavNum+1开始，到2×uavNum
-        expBearing.bearings[i+uavNum].x = desiredBearing[0];
-        expBearing.bearings[i+uavNum].y = desiredBearing[1];
     }
 
 }
@@ -532,19 +588,27 @@ void ygcClass::bearingInfoInit()
         }
 
         mutualBearing.bearings[i].x = 0;
-        mutualBearing.bearings[i].y = 0;
+        mutualBearing.bearings[i].y = 1;
         targetBearing.bearings[i].x = 0;
-        targetBearing.bearings[i].y = 0;
+        targetBearing.bearings[i].y = 1;
         lastMutuBearing.bearings[i].x = 0;
-        lastMutuBearing.bearings[i].y= 0;
+        lastMutuBearing.bearings[i].y= 1;
         allPositions[i].x = 0;
-        allPositions[i].y = 0;
+        allPositions[i].y = 1;
         allPositions[i].z = 0;
         expBearing.bearings[i+uavNum].x = sin(agentTheta);
         expBearing.bearings[i+uavNum].y = cos(agentTheta);
     }
     lastMutuBearing = mutualBearing;
     lastTargetBearing = targetBearing;
+    targetPos.pose.pose.position.x = 0;
+    targetPos.pose.pose.position.y = 0;
+}
+
+void ygcClass::ReceiUavPos1(const geometry_msgs::TransformStampedConstPtr &vicon_msg)
+{
+    allPositions[0].x = vicon_msg->transform.translation.x;
+    allPositions[0].y = vicon_msg->transform.translation.y;
 }
 
 

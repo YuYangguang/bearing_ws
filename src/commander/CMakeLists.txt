@@ -58,7 +58,7 @@ add_library(commander
 )
 
 target_link_libraries(commander ${catkin_LIBRARIES}
-
+bearing_common
 )
 
 add_executable(commander_node src/commander.cpp

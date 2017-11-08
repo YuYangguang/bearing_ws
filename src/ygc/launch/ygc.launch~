@@ -1,9 +1,22 @@
 <launch>
 
 <node name="keyboard" pkg="keyboard" type="keyboard"/>
-<arg name="uav_num" default="5" />
+<arg name="uav_num" default="1" />
+<arg name="TriggerFlag" default="false" />
+<arg name="SimuFlag" default="false" />
+
+    <node name="dynamic" pkg="formation" type="dynamic_reconfigure_node"  output="screen" >
+ </node>
+  <node name="paramSetClient" pkg="formation" type="paramSetClient.py"  output="screen" >
+ </node>
+  <node name="rqt" pkg="rqt_reconfigure" type="rqt_reconfigure"  output="screen" >
+ </node>
+  <node name="commander" pkg="commander" type="commander_node"  output="screen" clear_params="true" cwd="node">
+  </node>
  <node name="ygc_node" pkg="ygc" type="ygc_node"  output="screen" >
       <param name="uav_num" value="$(arg uav_num)" />
+      <param name="TriggerFlag" value="$(arg TriggerFlag)" />
+      <param name="SimuFlag" value="$(arg SimuFlag)" />
  </node>
 
 </launch>

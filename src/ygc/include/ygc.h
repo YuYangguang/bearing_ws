@@ -91,6 +91,7 @@ private:
     int systemID;
     int coordMethod;     //协同方式，是环航还是围捕
     bool IsUseEventTri;   //是否使用event-trigger机制
+    bool IsUseSimu;     //是否是仿真模式
     bool IsInfoUpdate;
     float cir_sigma1;
     float cir_sigma2;
@@ -107,6 +108,7 @@ private:
     ros::Publisher agentVelPub;
     ros::Subscriber keyboardSub;
     ros::Subscriber velCmdSub;   //订阅无人机速度命令消息
+    ros::Subscriber uavPosSub1;
     ros::Subscriber gazeboInfoSub;
     geometry_msgs::PoseStamped positionSet;
     geometry_msgs::PoseStamped localPose;
@@ -114,6 +116,7 @@ private:
     void bearingUpdate(const ros::TimerEvent& event);
     void cacExpBearing();
     void bearingInfoInit();
+    void ReceiUavPos1(const geometry_msgs::TransformStampedConstPtr &vicon_msg);
 };
 
 

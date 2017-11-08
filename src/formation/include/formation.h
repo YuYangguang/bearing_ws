@@ -151,7 +151,7 @@ private:
     void viconPositionReceived(const geometry_msgs::TransformStampedConstPtr& vicon_msg);
     void EstTarVel(void); //估计目标速度
     void EstTarDis(void); //估计目标距离
-    void initParamServer();
+//    void initParamServer();
     void takeoffCtr();
     void landCtr();
     void encircleCtr(double targetHei);  //输入，期望的高度
