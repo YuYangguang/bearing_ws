@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+
+<launch>
+
+  <arg name="uav1_id" default="2" />
+<arg name="viconName"  default="/vicon/nuflie04/nuflie04"/>
+     <arg name="fcu_url" default="/dev/ttyUSB0:921600" />
+<arg name="tgt_system" default="1" />
+	<arg name="tgt_component" default="1" />
+	<arg name="log_output" default="screen" />
+<arg name="gcs_url" default="" />
+
+  <group ns="uav2">
+    <include file="$(find formation)/launch/formation.launch">
+      <arg name="system_id" value="$(arg uav1_id)" />
+      <arg name="viconName" value="$(arg viconName)" />
+    </include>
+ </group>
+
+</launch>

@@ -93,8 +93,6 @@ smarteye::Formation::Formation(int argc, char** argv, const char * name)
                                  &smarteye::Formation::ReceiveLocalPose,this);
     setVelPub = nh->advertise<geometry_msgs::TwistStamped>(uavName+"/mavros/setpoint_velocity/cmd_vel", 10);
     positionSet = localPose;
-
-
 }
 
 smarteye::Formation::~Formation()
@@ -170,7 +168,7 @@ void smarteye::Formation::ReceiveKeybdCmd(const keyboard::Key &key)
         uavState = YGC_HOVER;
         mavros_msgs::SetMode setmodeCMD;
         setmodeCMD.request.custom_mode = "OFFBOARD";
-        if(setModeClient.call(setmodeCMD) && setmodeCMD.response.success)
+        if(setModeClient.call(setmodeCMD) && setmodeCMD.response.mode_sent)
         {
             ROS_INFO("the mode of vehicle %d has changed to offboard",systemID);
         }

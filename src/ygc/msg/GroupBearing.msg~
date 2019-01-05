@@ -1,2 +1,1 @@
-Vector2D trueVel
-Vector2D cmdVel
+bearing2D[] bearings
