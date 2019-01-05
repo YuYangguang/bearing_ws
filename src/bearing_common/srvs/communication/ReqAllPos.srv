@@ -1,0 +1,4 @@
+uint8[] DemandPos         #所请求的无人机状态ID
+UAVcondition SelfPos #自身状态信息
+---
+UAVcondition[] OfferPos #服务端（Communication）根据客户端（Route_manager）的请求提供的无人机状态

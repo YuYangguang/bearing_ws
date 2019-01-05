@@ -22,7 +22,8 @@ find_package(catkin REQUIRED COMPONENTS
     mavros
     mavros_msgs
     sensor_msgs
-    ygc
+    bearing_common
+
     )
 
 set(formation_includes
@@ -38,17 +39,17 @@ generate_dynamic_reconfigure_options(
 catkin_package(
     INCLUDE_DIRS   ${formation_includes}
     CATKIN_DEPENDS
- dynamic_reconfigure  message_generation  roscpp rospy  std_msgs std_srvs mavros ygc
+ dynamic_reconfigure  message_generation  roscpp rospy  std_msgs std_srvs mavros bearing_common
     )
 
 add_library(formation  STATIC
 src/formation.cpp
 include/formation.h
 )
-target_link_libraries(formation  ${catkin_LIBRARIES} ygc
+target_link_libraries(formation  ${catkin_LIBRARIES} 
 
 )
-add_dependencies(formation  ${catkin_EXPORTED_TARGETS} ygc)
+add_dependencies(formation  ${catkin_EXPORTED_TARGETS} )
 add_executable(formation_node
                include/formation.h
                src/main.cpp
@@ -59,9 +60,9 @@ target_link_libraries(formation_node
     ${catkin_LIBRARIES}
    ${CMAKE_THREAD_LIBS_INIT}
     formation
-    ygc
+   
 )
-add_dependencies(formation_node ${catkin_EXPORTED_TARGETS} ygc)
+add_dependencies(formation_node ${catkin_EXPORTED_TARGETS} )
 
 add_executable(dynamic_reconfigure_node src/dynamic_reconfigure_node.cpp) 
 # for dynamic reconfigure  

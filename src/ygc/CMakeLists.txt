@@ -21,26 +21,17 @@ find_package(catkin REQUIRED COMPONENTS
     mavros
     mavros_msgs
     sensor_msgs
+bearing_common
     )
 
 
-add_message_files(
-FILES
-Bearing2D.msg
-GroupBearing.msg
-Vector2D.msg
-DataRecord.msg
-)
 
-generate_messages(
-DEPENDENCIES
-std_msgs )
 
 catkin_package(
     INCLUDE_DIRS  include
     LIBRARIES ygc
     CATKIN_DEPENDS   roscpp rospy  std_msgs std_srvs mavros
-message_runtime)
+message_runtime bearing_common)
 
 #set(ygc_includes
 #    include
@@ -55,7 +46,7 @@ src/ygc.cpp
 include/ygc.h
 )
 target_link_libraries(ygc  ${catkin_LIBRARIES})
-add_dependencies(ygc  ${catkin_EXPORTED_TARGETS} ygc_gencpp)
+add_dependencies(ygc  ${catkin_EXPORTED_TARGETS} )
 add_executable(ygc_node
                src/main.cpp
                src/ygc.cpp
@@ -64,7 +55,7 @@ add_executable(ygc_node
 target_link_libraries(ygc_node
     ${catkin_LIBRARIES}
 )
-add_dependencies(ygc_node ${catkin_EXPORTED_TARGETS} ygc_gencpp)
+add_dependencies(ygc_node ${catkin_EXPORTED_TARGETS} )
 
 
 ###############INSTALL#####################

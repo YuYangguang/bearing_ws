@@ -1,0 +1,7 @@
+# Send waypoints to station
+#
+# Returns success status
+
+mavros_msgs/Waypoint[] update_route
+---
+bool success

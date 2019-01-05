@@ -1,0 +1,4 @@
+uint8 srvType
+uint8[] idInGroup
+---
+mavros_msgs/Waypoint[] fm_route

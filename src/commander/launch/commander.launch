@@ -1,0 +1,7 @@
+<launch>
+	<!-- commander : -->
+
+  <node name="commander" pkg="commander" type="commander_node"  output="screen" clear_params="true" cwd="node">
+     <param name="host_version" value="1.4.4.5b" /> 
+  </node>
+</launch>
