@@ -1,3 +1,4 @@
 build/
 devel/
 src-build/
+src/CMakeLists.txt.user
