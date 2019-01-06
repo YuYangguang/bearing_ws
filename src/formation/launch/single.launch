@@ -4,20 +4,12 @@
 <launch>
 
   <arg name="uav1_id" default="1" />
-<<<<<<< HEAD
 <arg name="viconName"  default="/vicon/nuflie06/nuflie06"/>
-=======
-<arg name="viconName"  default="/vicon/nuflie02/nuflie02"/>
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
      <arg name="fcu_url" default="/dev/ttyUSB0:921600" />
 <arg name="tgt_system" default="1" />
 	<arg name="tgt_component" default="1" />
 	<arg name="log_output" default="screen" />
-<<<<<<< HEAD
 <arg name="gcs_url" default="" />
-=======
-<arg name="gcs_url" default="udp://192.168.2.102@192.168.2.164:14550" />
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
 
   <group ns="uav1">
     <include file="$(find formation)/launch/formation.launch">

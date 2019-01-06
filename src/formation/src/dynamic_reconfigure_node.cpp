@@ -4,15 +4,11 @@
 
 void callback(formation::formationCFGConfig &config, uint32_t level)  
 {  
-<<<<<<< HEAD
   ROS_INFO("Reconfigure request : %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
            config.CIR_SIGMA1,
 config.CIR_SIGMA2,
 config.ENCIR_SIGMA1,
 config.ENCIR_SIGMA2,
-=======
-  ROS_INFO("Reconfigure request : %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
            config.ENV_K_ALPHA,  
            config.ENV_K_BETA, 
           config.ENV_K_GAMMA, 
@@ -26,16 +22,8 @@ config.ENCIR_SIGMA2,
            config.XY_KI,
             config.XY_KD,
             config.XY_BIAS,
-<<<<<<< HEAD
            config.ROTT
 
-=======
-           config.ROTT,
-            config.CIR_SIGMA1,
-config.CIR_SIGMA2,
-config.ENCIR_SIGMA1,
-config.ENCIR_SIGMA2
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
 );
   
   // do nothing for now  

@@ -12,13 +12,7 @@ using namespace smarteye;
 ygcClass::ygcClass(int argc, char **argv, const char *name)
 {
     sleep(1);
-<<<<<<< HEAD
     updateHz = 18;
-=======
-    uavNum = 5;
-    systemID = -1;
-    updateHz = 20;
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     float updateTime = 1.0/updateHz;
     ros::init(argc, argv, "ygc_node");
     nh = boost::make_shared<ros::NodeHandle>("~");
@@ -84,18 +78,6 @@ ygcClass::ygcClass(int argc, char **argv, const char *name)
     agentVel.bearings.resize(uavNum);
     expBearing.bearings.resize(uavNum*2);
     std::string tempName;
-<<<<<<< HEAD
-=======
-    //    for(int i=0;i<uavNum;i++)
-    //    {
-    //        uavName = "/uav"+num2str(i+1);
-    //        arming_client[i] = nh->serviceClient<mavros_msgs::CommandBool>(uavName+"/mavros/cmd/arming");
-    //        setModeClient[i] = nh->serviceClient<mavros_msgs::SetMode>(uavName+"/mavros/set_mode");
-    //        setPositionPublisher[i] = nh->advertise<geometry_msgs::PoseStamped>
-    //                (uavName+"/mavros/setpoint_position/local",10);
-
-    //    }
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     targetPos.pose.pose.position.x = 0;
     targetPos.pose.pose.position.y = 0;
     targetPos.pose.pose.position.z = 0;
@@ -105,7 +87,6 @@ ygcClass::ygcClass(int argc, char **argv, const char *name)
     mutualBearingPub = nh->advertise<bearing_common::GroupBearing>("/ygc/mutual_bearing",2);
     targetBearingPub = nh->advertise<bearing_common::GroupBearing>("/ygc/target_bearing",2);
     expBearingPub = nh->advertise<bearing_common::GroupBearing>("/ygc/expected_bearing",2);
-<<<<<<< HEAD
     //gazeboInfoSub = nh->subscribe("/gazebo/model_states", 5,&ygcClass::ReceiveGazeboInfo, this);
     keyboardSub= nh->subscribe("/keyboard/keydown",1,&ygcClass::ReceiveKeybdCmd,this);
     ygcUpdateTimer = nh->createTimer(ros::Duration(updateTime),&ygcClass::update, this);
@@ -125,22 +106,6 @@ ygcClass::ygcClass(int argc, char **argv, const char *name)
     targetPosePub = nh->advertise<nav_msgs::Odometry>("/ygc/targetPose",5);
     //dotBearingPub = nh->advertise<bearing_common::GroupBearing>("/ygc/dot_bearing",2);
     //agentVelPub = nh->advertise<bearing_common::GroupBearing>("/ygc/agentVel",2);
-=======
-    gazeboInfoSub = nh->subscribe("/gazebo/model_states", 5,&ygcClass::ReceiveGazeboInfo, this);
-    keyboardSub= nh->subscribe("/keyboard/keydown",1,&ygcClass::ReceiveKeybdCmd,this);
-    ygcUpdateTimer = nh->createTimer(ros::Duration(updateTime),&ygcClass::update, this);
-    bearingUpdateTimer = nh->createTimer(ros::Duration(0.03),&ygcClass::bearingUpdate, this);
-    bearingInfoInit();
-    uavForRec = 1;
-    tempName = "/uav"+num2str(uavForRec);
-    velCmdSub = nh->subscribe(tempName+"/mavros/local_position/velocity", 5,&ygcClass::ReceiveCmdInfo1, this);
-    uavPosSub1= nh->subscribe("/vicon/nuflie02/nuflie02", 10,
-                              &ygcClass::ReceiUavPos1,this);
-    dataRecPub = nh->advertise<bearing_common::DataRecord>("/ygc/dataRecorded",5);
-    targetPosePub = nh->advertise<nav_msgs::Odometry>("/ygc/targetPose",5);
-    dotBearingPub = nh->advertise<bearing_common::GroupBearing>("/ygc/dot_bearing",2);
-    agentVelPub = nh->advertise<bearing_common::GroupBearing>("/ygc/agentVel",2);
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     allPosiPub = nh->advertise<bearing_common::AllPosition>("/ygc/allPosition",5);
     trigRecPub = nh->advertise<bearing_common::TriggerRec>("/ygc/triggerRec",5);
     lastBearUpTime = 0;
@@ -201,7 +166,6 @@ void ygcClass::ReceiveKeybdCmd(const keyboard::Key &key)
     }
     case 'q':
     {
-<<<<<<< HEAD
         if(fabs(rotateSpeed)<1E-6)
         {
             rotateSpeed = -YGC_PI/30;
@@ -214,9 +178,6 @@ void ygcClass::ReceiveKeybdCmd(const keyboard::Key &key)
         rotateSpeed = 0;
         rotateTheta = 0;
 
-=======
-        rotateSpeed = -YGC_PI/40;
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     }
 
 
@@ -336,7 +297,6 @@ void ygcClass::ReceiveGazeboInfo(const gazebo_msgs::ModelStates::ConstPtr &msg)
 
 void ygcClass::update(const ros::TimerEvent &event)
 {
-<<<<<<< HEAD
     updateCount++;
 
     if(updateCount > 15)
@@ -344,10 +304,6 @@ void ygcClass::update(const ros::TimerEvent &event)
         updateCount = 0;
     }
 
-=======
-
-    triggerRec.sysTime++;
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     //********************所有飞机位置数据记录**************/
     for(int i=0;i<uavNum;i++)
     {
@@ -360,7 +316,6 @@ void ygcClass::update(const ros::TimerEvent &event)
     /************************************************/
 
     expBearingPub.publish(expBearing);
-<<<<<<< HEAD
     //dataRecPub.publish(dataRec);
     targetPosePub.publish(targetPos);  //发布飞机速度
     //agentVelPub.publish(agentVel);
@@ -368,15 +323,6 @@ void ygcClass::update(const ros::TimerEvent &event)
     {
         float dis = sqrt(pow((allPositions[0].x -targetPos.pose.pose.position.x),2)+
                 pow((allPositions[0].y -targetPos.pose.pose.position.y),2));
-=======
-    dataRecPub.publish(dataRec);
-    targetPosePub.publish(targetPos);  //发布飞机速度
-    agentVelPub.publish(agentVel);
-    if(uavNum == 1)
-    {
-        float dis = sqrt(pow((allPositions[0].x -targetPos.pose.pose.position.x),2)+
-                   pow((allPositions[0].y -targetPos.pose.pose.position.y),2));
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
         targetBearing.bearings[0].x = (allPositions[0].x-targetPos.pose.pose.position.x)/dis;
         targetBearing.bearings[0].y = (allPositions[0].y-targetPos.pose.pose.position.y)/dis;
     }
@@ -388,7 +334,6 @@ void ygcClass::update(const ros::TimerEvent &event)
     if(IsUseEventTri)
     {
         bool IsEventTriged = false; //是否满足事件触发条件
-<<<<<<< HEAD
         Eigen::Matrix<double, 3, 3> H;
         H << 1 ,-1 ,0  ,
                 0 ,1 ,-1 ,
@@ -401,22 +346,6 @@ void ygcClass::update(const ros::TimerEvent &event)
         Eigen::MatrixXd diagDb_star(2*uavNum,2*uavNum);
         diagDb_star = Eigen::MatrixXd::Zero(2*uavNum,2*uavNum);
         diagPgk_star = Eigen::MatrixXd::Zero(2*uavNum,2*uavNum);
-=======
-        Eigen::Matrix<double, 5, 5> H;
-        H << 1 ,-1 ,0 ,0 ,0 ,
-                0 ,1 ,-1 ,0 ,0,
-                0 ,0 ,1 ,-1 ,0,
-                0, 0, 0 ,1, -1,
-                -1, 0, 0, 0, 1;
-        Eigen::MatrixXd Id = Eigen::MatrixXd::Identity(2,2);
-        Eigen::Matrix<double, 10, 10> H_bar;
-        H_bar = Eigen::kroneckerProduct(H,Id);
-        Eigen::kroneckerProduct(H,Id);
-        Eigen::MatrixXd diagPgk_star(10,10);
-        Eigen::MatrixXd diagDb_star(10,10);
-        diagDb_star = Eigen::MatrixXd::Zero(10,10);
-        diagPgk_star = Eigen::MatrixXd::Zero(10,10);
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
         Eigen::Matrix2d Pgk_star;
         Eigen::Matrix2d Pgt_star;
         Eigen::Vector2d gij_star;
@@ -431,7 +360,6 @@ void ygcClass::update(const ros::TimerEvent &event)
         git_event.resize(2*uavNum,1);
         for(int i=0;i<uavNum;i++)
         {
-<<<<<<< HEAD
 
             gij_star[0] = expBearing.bearings[i].x;
             gij_star[1] = expBearing.bearings[i].y;
@@ -535,113 +463,12 @@ void ygcClass::update(const ros::TimerEvent &event)
             targetBearingPub.publish(targetBearing);
         }
 
-=======
-
-            gij_star[0] = expBearing.bearings[i].x;
-            gij_star[1] = expBearing.bearings[i].y;
-            gij[i*2] = mutualBearing.bearings[i].x;
-            gij[i*2+1] = mutualBearing.bearings[i].y;
-            git[i*2] = targetBearing.bearings[i].x;
-            git[1+i*2] = targetBearing.bearings[i].y;
-            gij_event[i*2] = lastMutuBearing.bearings[i].x;
-            gij_event[i*2+1] = lastMutuBearing.bearings[i].y;
-            git_event[i*2] = lastTargetBearing.bearings[i].x;
-            git_event[1+i*2] = lastTargetBearing.bearings[i].y;
-            if(gij_star.norm()>1.1)
-            {
-                ROS_ERROR("gij star is %f",gij_star.norm());
-            }
-            Pgk_star = Id-gij_star*gij_star.transpose();
-            if(Pgk_star.norm()>4)
-            {
-                ROS_ERROR("Pgk_star %f",Pgk_star.norm());
-            }
-            diagPgk_star.block(i*2,i*2,2,2) = Pgk_star;
-            git_star[0] = expBearing.bearings[i+uavNum].x;
-            git_star[1] = expBearing.bearings[i+uavNum].y;
-            Pgt_star = Id-git_star*git_star.transpose();
-            diagDb_star.block(i*2,i*2,2,2) = Pgt_star;
-        }
-        if(coordMethod == CIRCLE)
-        {
-            ros::param::get("/dynamic/CIR_SIGMA1",cir_sigma1);
-            ros::param::get("/dynamic/CIR_SIGMA2",cir_sigma2);
-            Eigen::VectorXd  err1;
-            Eigen::VectorXd  err2;
-            Eigen::VectorXd  tempV;
-            tempV.resize(2*uavNum);
-            err1.resize(2*uavNum);
-            err2.resize(2*uavNum);
-            err1 = 2*H_bar.transpose()*diagPgk_star*(gij-gij_event);
-            Eigen::VectorXd  err1V;
-            err1V.resize(2*uavNum);
-            err1V=(gij-gij_event);
-            err2 = 2*H_bar.transpose()*diagDb_star*(git-git_event);
-            tempV=(git-git_event);
-            Eigen::VectorXd  event_con1;//事件触发条件1
-            Eigen::VectorXd  event_con2;//事件触发条件2
-            event_con1.resize(2*uavNum);
-            event_con2.resize(2*uavNum);
-            event_con1 = diagPgk_star*gij;
-            event_con2 = diagDb_star*git;
-            if((err1.norm()+err2.norm())>cir_sigma1*event_con1.norm())
-            {
-                IsEventTriged = true;
-            }
-            if((err1.norm()+err2.norm())>cir_sigma2*event_con2.norm())
-            {
-                IsEventTriged = true;
-            }
-            triggerRec.stateErr = (err1.norm()+err2.norm());
-
-        }
-        if(coordMethod == ENCIRCLE)
-        {
-            ros::param::get("/dynamic/ENCIR_SIGMA1",encir_sigma1);
-            ros::param::get("/dynamic/ENCIR_SIGMA2",encir_sigma2);
-            Eigen::VectorXd  err;
-            err.resize(2*uavNum);
-            err = 2*H_bar.transpose()*diagPgk_star*(gij-gij_event)
-                    -2*H_bar.transpose()*diagDb_star*(git-git_event);
-
-            Eigen::VectorXd  event_con1;//事件触发条件1
-            Eigen::VectorXd  event_con2;//事件触发条件2
-
-            event_con1 = diagPgk_star*gij;
-            event_con2 = diagDb_star*git;
-            if((err.norm())>(encir_sigma1*event_con1.norm()/H_bar.norm()))
-            {
-                IsEventTriged = true;
-            }
-            if((err.norm())>encir_sigma2*event_con2.norm())
-            {
-                IsEventTriged = true;
-            }
-            triggerRec.stateErr = err.norm();
-        }
-
-        if(IsEventTriged)
-        {
-            lastMutuBearing = mutualBearing;  //更新输出
-            lastTargetBearing = targetBearing;  //更新输出
-            triggerRec.trigNum++;
-            mutualBearingPub.publish(mutualBearing);
-            targetBearingPub.publish(targetBearing);
-
-
-        }
-
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     }
     else
     {
         mutualBearingPub.publish(mutualBearing);
         targetBearingPub.publish(targetBearing);
-<<<<<<< HEAD
         //dotBearingPub.publish(dotMutualBearing);
-=======
-        dotBearingPub.publish(dotMutualBearing);
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     }
     trigRecPub.publish(triggerRec);
 }
@@ -649,7 +476,6 @@ void ygcClass::update(const ros::TimerEvent &event)
 void ygcClass::bearingUpdate(const ros::TimerEvent &event)
 {
 
-<<<<<<< HEAD
     rotateTheta = rotateTheta + rotateSpeed*1.0/updateHz;
     if(uavNum == 1)
     {
@@ -698,26 +524,9 @@ void ygcClass::bearingUpdate(const ros::TimerEvent &event)
                     targetBearing.bearings[i].y = (allPositions[i].y-targetPos.pose.pose.position.y)/dis;
                 }
             }
-=======
-    rotateTheta = rotateTheta + rotateSpeed;
-    if(uavNum == 1)
-    {
-        float dis = sqrt(pow((allPositions[0].x -targetPos.pose.pose.position.x),2)+
-                pow((allPositions[0].y -targetPos.pose.pose.position.y),2));
-        if((dis-1E-5)>0)
-        {
-            targetBearing.bearings[0].x = (allPositions[0].x-targetPos.pose.pose.position.x)/dis;
-            targetBearing.bearings[0].y = (allPositions[0].y-targetPos.pose.pose.position.y)/dis;
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
         }
-    }
-    if(IsUseEventTri)
-    {
-        double updateTime = ros::Time::now().toNSec();
-        double delta_time = (updateTime-lastBearUpTime)/1000000000;
-        for(int i=0;i<uavNum;i++)
+        else
         {
-<<<<<<< HEAD
             for(int i=0;i<uavNum;i++)
             {
                 float dis;
@@ -737,33 +546,6 @@ void ygcClass::bearingUpdate(const ros::TimerEvent &event)
                 }
                 dis = sqrt(pow((allPositions[i].x -targetPos.pose.pose.position.x),2)+
                            pow((allPositions[i].y -targetPos.pose.pose.position.y),2));
-=======
-            float dis;
-            if(i==uavNum-1)
-            {
-                dis = sqrt(pow((allPositions[i].x -allPositions[0].x),2)
-                        + pow((allPositions[i].y -allPositions[0].y),2)); //两点之间的距离
-                if((dis-1E-5)>0)
-                {
-                    mutualBearing.bearings[i].x = (allPositions[i].x -allPositions[0].x)/dis;
-                    mutualBearing.bearings[i].y = (allPositions[i].y -allPositions[0].y)/dis;
-                }
-            }
-            else
-            {
-                dis = sqrt(pow((allPositions[i].x -allPositions[i+1].x),2)
-                        + pow((allPositions[i].y -allPositions[i+1].y),2));
-                if((dis-1E-5)>0)
-                {
-                    mutualBearing.bearings[i].x = (allPositions[i].x -allPositions[i+1].x)/dis;
-                    mutualBearing.bearings[i].y = (allPositions[i].y -allPositions[i+1].y)/dis;
-                }
-            }
-            dis = sqrt(pow((allPositions[i].x -targetPos.pose.pose.position.x),2)+
-                       pow((allPositions[i].y -targetPos.pose.pose.position.y),2));
-            if((dis-1E-5)>0)
-            {
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
                 targetBearing.bearings[i].x = (allPositions[i].x-targetPos.pose.pose.position.x)/dis;
                 targetBearing.bearings[i].y = (allPositions[i].y-targetPos.pose.pose.position.y)/dis;
             }
@@ -781,7 +563,6 @@ void ygcClass::cacExpBearing()
     Eigen::Matrix2d rotateMatrix;
     rotateMatrix << cos(rotateTheta),-sin(rotateTheta),
             sin(rotateTheta),cos(rotateTheta);
-<<<<<<< HEAD
 
     if(uavNum == 1)
     {
@@ -793,17 +574,6 @@ void ygcClass::cacExpBearing()
         initTarDesBearing[0] = sin(agentTheta);
         initTarDesBearing[1] = cos(agentTheta);
         desiredBearing = rotateMatrix*initTarDesBearing;
-=======
-
-    if(uavNum == 1)
-    {
-
-        expBearing.bearings[0].x = 0;
-        expBearing.bearings[0].y = -1;
-        initDesBearing[0] = 0;
-        initDesBearing[1] = -1;
-        desiredBearing = rotateMatrix*initDesBearing;
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
         expBearing.bearings[1].x = desiredBearing[0];
         expBearing.bearings[1].y = desiredBearing[1];
 
@@ -812,7 +582,6 @@ void ygcClass::cacExpBearing()
     {
         for(int i=0;i<uavNum;i++)
         {
-<<<<<<< HEAD
             double agentTheta = 2*YGC_PI*i/uavNum+YGC_PI;
             double nextAgentTheta = 2*YGC_PI*(i+1)/uavNum+YGC_PI;
             float dis =2*sin(YGC_PI/uavNum);  //单位圆上正多边形的边长
@@ -820,15 +589,6 @@ void ygcClass::cacExpBearing()
             {
                 initDesBearing[0] = (sin(agentTheta)-sin(YGC_PI))/dis;
                 initDesBearing[1] = (cos(agentTheta)-cos(YGC_PI))/dis;
-=======
-            double agentTheta = 2*YGC_PI*i/uavNum;
-            double nextAgentTheta = 2*YGC_PI*(i+1)/uavNum;
-            float dis =2*sin(YGC_PI/uavNum);  //单位圆上正多边形的边长
-            if(i== (uavNum-1))
-            {
-                initDesBearing[0] = (sin(agentTheta)-sin(0))/dis;
-                initDesBearing[1] = (cos(agentTheta)-cos(0))/dis;
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
 
             }
             else
@@ -893,19 +653,15 @@ void ygcClass::bearingInfoInit()
     lastTargetBearing = targetBearing;
     targetPos.pose.pose.position.x = 0;
     targetPos.pose.pose.position.y = 0;
-<<<<<<< HEAD
     lastTargetTime = 0;
     lastTargetPose2D.x = 0;
     lastTargetPose2D.y = 0;
-=======
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
 }
 
 void ygcClass::ReceiUavPos1(const geometry_msgs::TransformStampedConstPtr &vicon_msg)
 {
     allPositions[0].x = vicon_msg->transform.translation.x;
     allPositions[0].y = vicon_msg->transform.translation.y;
-<<<<<<< HEAD
 }
 
 void ygcClass::ReceiUavPos2(const geometry_msgs::TransformStampedConstPtr &vicon_msg)
@@ -956,8 +712,6 @@ void ygcClass::ReceiveTarViconPose(const geometry_msgs::TransformStampedConstPtr
     }
 
 
-=======
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
 }
 
 

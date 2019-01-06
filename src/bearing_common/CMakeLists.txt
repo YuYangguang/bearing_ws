@@ -68,7 +68,6 @@ target_link_libraries(bearing_common
 
 
 #########install
-<<<<<<< HEAD
 install(TARGETS bearing_common
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -80,9 +79,6 @@ install(DIRECTORY core/include/smarteye/core/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/smarteye/core/
   FILES_MATCHING PATTERN "*.h*"
 )
-=======
-
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
 
 
 

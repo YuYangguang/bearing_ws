@@ -110,10 +110,7 @@ private:
     float env_k_gamma;
     int uavState;
     float dis2TarEst[6];   //到目标的距离估计
-<<<<<<< HEAD
     float initialHeight;    //the initial height of uav (on ground)
-=======
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     geometry_msgs::TwistStamped selfVel;  //自身速度
     geometry_msgs::TwistStamped neighborVel;  //邻居智能体速度
     ros::ServiceClient paramClient;
@@ -146,11 +143,7 @@ private:
     geometry_msgs::PoseStamped localPose;
     geometry_msgs::PoseStamped uavCurrentViconPose;
     nav_msgs::Odometry targetInfo;
-<<<<<<< HEAD
 //    void ReceiveLocalPose(const geometry_msgs::PoseStampedConstPtr& msg);
-=======
-    void ReceiveLocalPose(const geometry_msgs::PoseStampedConstPtr& msg);
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     void ReceiveMulBearing(const bearing_common::GroupBearingConstPtr &msg);
     void ReceiveTarBearing(const bearing_common::GroupBearingConstPtr &msg);
     void ReceiveExpBearing(const bearing_common::GroupBearingConstPtr &msg);
@@ -163,18 +156,11 @@ private:
     void viconPositionReceived(const geometry_msgs::TransformStampedConstPtr& vicon_msg);
     void EstTarVel(void); //估计目标速度
     void EstTarDis(void); //估计目标距离
-<<<<<<< HEAD
-=======
-//    void initParamServer();
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     void takeoffCtr();
     void landCtr();
     void encircleCtr(double targetHei);  //输入，期望的高度
     void circleCtr(double targetHei);    //输入，期望高度
-<<<<<<< HEAD
     void InitParam(void);
-=======
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
 
 
 };

@@ -39,11 +39,7 @@ smarteye::Formation::Formation(int argc, char** argv, const char * name)
     //后面此处应加入uav数量
     std::string neighUAVname;
     int neighUAVID;
-<<<<<<< HEAD
     if(systemID == 3)
-=======
-    if(systemID == 5)
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     {
         neighUAVID = 1;
     }
@@ -69,18 +65,12 @@ smarteye::Formation::Formation(int argc, char** argv, const char * name)
     expBearingSub = nh->subscribe("/ygc/expected_bearing",2,
                                   &smarteye::Formation::ReceiveExpBearing,this);
     keyboardSub= nh->subscribe("/keyboard/keydown",1,&Formation::ReceiveKeybdCmd,this);
-<<<<<<< HEAD
     //    localPoseSub = nh->subscribe(uavName+"/mavros/local_position/pose", 10,
     //                                 &smarteye::Formation::ReceiveLocalPose,this);
-=======
-    localPoseSub = nh->subscribe(uavName+"/mavros/local_position/pose", 10,
-                                 &smarteye::Formation::ReceiveLocalPose,this);
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     targetInfoSub = nh->subscribe("/ygc/targetPose",2,
                                   &smarteye::Formation::ReceiveTargetInfo,this);
     setVelPub = nh->advertise<geometry_msgs::TwistStamped>(uavName+"/mavros/setpoint_velocity/cmd_vel", 10);
     allPoseSub = nh->subscribe("/ygc/allPosition",3,&smarteye::Formation::ReceiveAllPose,this);
-<<<<<<< HEAD
     //dotBearingSub = nh->subscribe("/ygc/dot_bearing",3,&smarteye::Formation::ReceiveDotBearing,this);
     //    selfVelSub = nh->subscribe(uavName+"/mavros/local_position/velocity", 10,
     //                               &smarteye::Formation::ReceiveSelfVel,this);
@@ -92,21 +82,6 @@ smarteye::Formation::Formation(int argc, char** argv, const char * name)
     receiveHParamSrv = nh->advertiseService(uavName+"/formation/host_param/set_param"
                                             ,&smarteye::Formation::receiveHParamSetSrv,this);
     InitParam();
-=======
-    dotBearingSub = nh->subscribe("/ygc/dot_bearing",3,&smarteye::Formation::ReceiveDotBearing,this);
-    positionSet = localPose;
-    selfVelSub = nh->subscribe(uavName+"/mavros/local_position/velocity", 10,
-                               &smarteye::Formation::ReceiveSelfVel,this);
-    neighborVelSub = nh->subscribe(neighUAVname+"/mavros/local_position/velocity", 10,
-                                   &smarteye::Formation::ReceiveNeighborVel,this);
-    agentVelSub = nh->subscribe("/ygc/agentVel",3,&smarteye::Formation::ReceiveAgentVel,this);
-    viconPositionSubsciber = nh->subscribe(viconName, 10, &smarteye::Formation::viconPositionReceived,this);
-    currentViconPositionPublisher = nh->advertise<geometry_msgs::PoseStamped>(uavName+"/mavros/mocap/pose",10);
-    timecount = 0;
-    rotTheta = -0.63;
-    receiveHParamSrv = nh->advertiseService("/formation/host_param/set_param"
-                                            ,&smarteye::Formation::receiveHParamSetSrv,this);
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
 
 }
 
@@ -166,7 +141,6 @@ bool smarteye::Formation::receiveHParamSetSrv(bearing_common::HParamSetSrv::Requ
     //    }
     if(req.param_id == "HEI_KI")
         heiCtr.hei_ki =req.param_value;
-<<<<<<< HEAD
     else if(req.param_id == "HEI_KP1")
         heiCtr.hei_kp1 =req.param_value;
     else if(req.param_id == "HEI_KP2")
@@ -175,12 +149,6 @@ bool smarteye::Formation::receiveHParamSetSrv(bearing_common::HParamSetSrv::Requ
         heiCtr.hei_kpdiv =req.param_value;
     else if(req.param_id == "HEI_KD")
         heiCtr.hei_kd =req.param_value;
-=======
-    else if(req.param_id == "HEI_KP")
-        heiCtr.hei_kp =req.param_value;
-    else if(req.param_id == "HEI_KD")
-        heiCtr.hei_kp =req.param_value;
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     else if(req.param_id == "HEI_BIAS")
         heiCtr.hei_bias =req.param_value;
     else if(req.param_id == "XY_BIAS")
@@ -215,13 +183,10 @@ bool smarteye::Formation::receiveHParamSetSrv(bearing_common::HParamSetSrv::Requ
     {
         env_k_beta = req.param_value;
     }
-<<<<<<< HEAD
     else if(req.param_id == "ENV_K_GAMMA")
     {
         env_k_gamma = req.param_value;
     }
-=======
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     else
     {
         ROS_WARN("Unknown param set request received");
@@ -411,20 +376,12 @@ void smarteye::Formation::update(const ros::TimerEvent &event)
     }
     case YGC_ENCIRCLE:
     {
-<<<<<<< HEAD
         encircleCtr(1.3+initialHeight);
-=======
-        encircleCtr(1);
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
         break;
     }
     case YGC_CIRCLE:
     {
-<<<<<<< HEAD
         circleCtr(1.3+initialHeight);
-=======
-        circleCtr(1);
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
         break;
     }
     default:
@@ -435,20 +392,13 @@ void smarteye::Formation::update(const ros::TimerEvent &event)
     }
 }
 
-<<<<<<< HEAD
 void smarteye::Formation::viconUpdate(const ros::TimerEvent &event)
-=======
-
-
-void smarteye::Formation::ReceiveLocalPose(const geometry_msgs::PoseStampedConstPtr &msg)
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
 {
     uavCurrentViconPose.header.stamp = ros::Time::now();
     uavCurrentViconPose.header.frame_id = "/world";
     currentViconPositionPublisher.publish(uavCurrentViconPose);
 }
 
-<<<<<<< HEAD
 //void smarteye::Formation::ReceiveLocalPose(const geometry_msgs::PoseStampedConstPtr &msg)
 //{
 //    localPose.pose.position.x = msg->pose.position.x;
@@ -465,8 +415,6 @@ void smarteye::Formation::ReceiveLocalPose(const geometry_msgs::PoseStampedConst
 
 //}
 
-=======
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
 void smarteye::Formation::ReceiveMulBearing(const bearing_common::GroupBearingConstPtr &msg)
 {
     mutualBearing = *msg;
@@ -499,21 +447,12 @@ void smarteye::Formation::ReceiveDotBearing(const bearing_common::GroupBearingCo
 }
 
 void smarteye::Formation::ReceiveSelfVel(const geometry_msgs::TwistStampedConstPtr &msg)
-<<<<<<< HEAD
 {
     selfVel = *msg;
 }
 
 void smarteye::Formation::ReceiveNeighborVel(const geometry_msgs::TwistStampedConstPtr &msg)
 {
-=======
-{
-    selfVel = *msg;
-}
-
-void smarteye::Formation::ReceiveNeighborVel(const geometry_msgs::TwistStampedConstPtr &msg)
-{
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     neighborVel = *msg;
 }
 
@@ -525,7 +464,6 @@ void smarteye::Formation::ReceiveAgentVel(const bearing_common::GroupBearingCons
 
 void smarteye::Formation::viconPositionReceived(const geometry_msgs::TransformStampedConstPtr &vicon_msg)
 {
-<<<<<<< HEAD
 
     uavCurrentViconPose.pose.position.x = vicon_msg->transform.translation.x;
     uavCurrentViconPose.pose.position.y = vicon_msg->transform.translation.y;
@@ -534,8 +472,6 @@ void smarteye::Formation::viconPositionReceived(const geometry_msgs::TransformSt
     uavCurrentViconPose.pose.orientation.x = vicon_msg->transform.rotation.x;
     uavCurrentViconPose.pose.orientation.y = vicon_msg->transform.rotation.y;
     uavCurrentViconPose.pose.orientation.z = vicon_msg->transform.rotation.z;
-=======
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     localPose.pose.position.x = vicon_msg->transform.translation.x;
     localPose.pose.position.y = vicon_msg->transform.translation.y;
     localPose.pose.position.z = vicon_msg->transform.translation.z;
@@ -650,7 +586,6 @@ void smarteye::Formation::EstTarDis()
 
 }
 
-<<<<<<< HEAD
 
 void smarteye::Formation::takeoffCtr()
 {
@@ -661,36 +596,6 @@ void smarteye::Formation::takeoffCtr()
     else
     {
         positionSet.pose.position.z = 1+initialHeight;
-=======
-//void smarteye::Formation::ReceiveTargetInfo(const nav_msgs::OdometryConstPtr &msg)
-//{
-//    targetInfo = *msg;
-//}
-
-//void smarteye::Formation::initParamServer()
-//{
-//    ros::param::set("ENV_K_ALPHA", 5);
-//    ros::param::set("ENV_K_BETA", 5);
-//    ros::param::set("HEI_KP", 2);
-//    ros::param::set("HEI_KI", 0.02);
-//    ros::param::set("HEI_KD", 0.3);
-//    ros::param::set("HEI_BIAS",0.07);
-//}
-
-void smarteye::Formation::takeoffCtr()
-{
-    if(localPose.pose.position.z<0.7)
-    {
-        positionSet.pose.position.x = 0;
-        positionSet.pose.position.y = 0;
-        positionSet.pose.position.z = localPose.pose.position.z+0.15;
-    }
-    else
-    {
-        positionSet.pose.position.x = 0;
-        positionSet.pose.position.y = 0;
-        positionSet.pose.position.z = 1;
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     }
     //    positionSet.pose.position.z = 1.5;
     setPositionPub.publish(positionSet);
@@ -701,24 +606,12 @@ void smarteye::Formation::landCtr()
 {
     if(localPose.pose.position.z>0.3)
     {
-<<<<<<< HEAD
 
         positionSet.pose.position.z = localPose.pose.position.z-0.2;
     }
     else
     {
         positionSet.pose.position.z = -0.5;
-=======
-        positionSet.pose.position.x = 0;
-        positionSet.pose.position.y = 0;
-        positionSet.pose.position.z = localPose.pose.position.z-0.15;
-    }
-    else
-    {
-        positionSet.pose.position.x = 0;
-        positionSet.pose.position.y = 0;
-        positionSet.pose.position.z = 0;
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     }
     setPositionPub.publish(positionSet);
 
@@ -726,7 +619,6 @@ void smarteye::Formation::landCtr()
 
 void smarteye::Formation::encircleCtr(double targetHei)
 {
-<<<<<<< HEAD
 //    heiCtr.currentHei = localPose.pose.position.z;
 //    heiCtr.targetHei = targetHei;
 //    velocitySet.twist.linear.z = heiCtr.cacOutput();
@@ -742,123 +634,6 @@ void smarteye::Formation::encircleCtr(double targetHei)
 //    velocitySet.twist.angular.z = 0;
 //    setVelPub.publish(velocitySet);
     if(systemID == 0)
-=======
-    heiCtr.currentHei = localPose.pose.position.z;
-    heiCtr.targetHei = targetHei;
-    velocitySet.twist.linear.z = heiCtr.cacOutput();
-    xCtr.currentPos = localPose.pose.position.x;
-    xCtr.targetPos = 0;
-    velocitySet.twist.linear.x = xCtr.cacOutput();
-
-    yCtr.currentPos = localPose.pose.position.y;
-    yCtr.targetPos = 0;
-    velocitySet.twist.linear.y = yCtr.cacOutput();
-    velocitySet.twist.angular.x = 0;
-    velocitySet.twist.angular.y = 0;
-    velocitySet.twist.angular.z = 0;
-    setVelPub.publish(velocitySet);
-    //    if(systemID == 0)
-    //    {
-    //        velocitySet.twist.linear.x = 0.3;
-    //        velocitySet.twist.linear.y = 0.3;
-    //        setVelPub.publish(velocitySet);
-    //    }
-    //    else
-    //    {
-    //        //EstTarDis();
-    //        if(mutualBearing.bearings.size()!=0)
-    //        {
-    //            int uavNum = mutualBearing.bearings.size();
-    //            //ROS_INFO("uavNum is %d",uavNum);
-    //            Eigen::Vector2d nextBearing;  //和后一个智能体的方位
-    //            Eigen::Vector2d preBearing;   //和前一个智能体的方位
-    //            Eigen::Vector2d nextBea_star;  //和后一个智能体的期望方位
-    //            Eigen::Vector2d preBea_star;   //和前一个智能体的期望方位
-    //            Eigen::Vector2d tbearing;   //和目标的方位
-    //            Eigen::Vector2d tbearing_star;   //和目标的方位
-    //            Eigen::Matrix2d Id;
-    //            Id <<1,0,
-    //                    0,1;
-    //            if(systemID == 1)
-    //            {
-    //                nextBearing[0] = mutualBearing.bearings[systemID-1].x;
-    //                nextBearing[1] = mutualBearing.bearings[systemID-1].y;
-    //                preBearing[0] = mutualBearing.bearings[uavNum-1].x;
-    //                preBearing[1] = mutualBearing.bearings[uavNum-1].y;
-    //                nextBea_star[0] = expBearing.bearings[systemID-1].x;
-    //                nextBea_star[1] = expBearing.bearings[systemID-1].y;
-    //                preBea_star[0] = expBearing.bearings[uavNum-1].x;
-    //                preBea_star[1] = expBearing.bearings[uavNum-1].y;
-    //            }
-    //            else
-    //            {
-    //                nextBearing[0] = mutualBearing.bearings[systemID-1].x;
-    //                nextBearing[1] = mutualBearing.bearings[systemID-1].y;
-    //                preBearing[0] = mutualBearing.bearings[systemID-2].x;
-    //                preBearing[1] = mutualBearing.bearings[systemID-2].y;
-    //                nextBea_star[0] = expBearing.bearings[systemID-1].x;
-    //                nextBea_star[1] = expBearing.bearings[systemID-1].y;
-    //                preBea_star[0] = expBearing.bearings[systemID-2].x;
-    //                preBea_star[1] = expBearing.bearings[systemID-2].y;
-    //            }
-    //            tbearing[0] = targetBearing.bearings[systemID-1].x;
-    //            tbearing[1] = targetBearing.bearings[systemID-1].y;
-    //            tbearing_star[0] = expBearing.bearings[systemID-1+uavNum].x;
-    //            tbearing_star[1] = expBearing.bearings[systemID-1+uavNum].y;
-    //            Eigen::Vector2d ctrOutput;  //控制输出
-    //            Eigen::Vector2d outFromNei;  //从邻居智能体得到的控制分量
-    //            Eigen::Vector2d outFromTar;  //从目标得到的控制分量
-    //            Eigen::Vector2d temp2 = (Id-preBea_star*preBea_star.transpose())*preBearing;
-    //            Eigen::Vector2d temp1 = (Id-nextBea_star*nextBea_star.transpose())*nextBearing;
-    //            outFromNei = env_k_alpha*(temp2 - temp1);
-    //            //env_k_alpha*((Id-preBea_star*preBea_star.transpose())*preBearing-
-    //            //       (Id-nextBea_star*nextBea_star.transpose())*nextBearing);
-    //            //        outFromNei = env_k_alpha*((Id-preBea_star*preBea_star.transpose())*preBearing-
-    //            //                                 (Id-nextBea_star*nextBea_star.transpose())*nextBearing);
-    //            outFromTar = -env_k_beta*(Id-tbearing_star*tbearing_star.transpose())*tbearing;
-    //            ctrOutput = outFromNei + outFromTar;
-
-    //            heiCtr.currentHei = localPose.pose.position.z;
-    //            heiCtr.targetHei = targetHei;
-    //            velocitySet.twist.linear.z = heiCtr.cacOutput();
-    //            //        if(systemID == 1)
-    //            //        {
-    //            //            ROS_INFO("current bearing: x is %f, y is %f",tbearing[0],tbearing[1]);
-    //            //            ROS_INFO("desired bearing: x is %f, y is %f",tbearing_star[0],tbearing_star[1]);
-    //            //            ROS_INFO("output: x is %f,y is %f",outFromTar[0],outFromTar[1]);
-    //            //            ROS_INFO("current position: x is %f, y is %f",localPose.pose.position.x,localPose.pose.position.y+10);
-    //            //        }
-    //            Eigen::Matrix2d rotateMatrix;
-    //            rotateMatrix <<cos(rotTheta),-sin(rotTheta),
-    //                    sin(rotTheta),cos(rotTheta);
-    //            ctrOutput = rotateMatrix*ctrOutput;
-    //            velocitySet.twist.linear.x = ctrOutput[0]+targetInfo.twist.twist.linear.x;
-    //            velocitySet.twist.linear.y = ctrOutput[1]+targetInfo.twist.twist.linear.y;
-    //            //        velocitySet.twist.linear.x = 1;
-    //            //        velocitySet.twist.linear.y = 0;
-    //            if(systemID == 0)
-    //            {
-    //                velocitySet.twist.linear.x = 0.1;
-    //                velocitySet.twist.linear.y = 0.1;
-    //            }
-    //            setVelPub.publish(velocitySet);
-
-    //        }
-    //        else
-    //        {
-    //            ROS_WARN("there is no bearing info found!");
-    //            setPositionPub.publish(positionSet);
-    //        }
-    //    }
-
-}
-
-void smarteye::Formation::circleCtr(double targetHei)
-{
-
-
-    if(systemID == 0)  //目标控制
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     {
         velocitySet.twist.linear.x = 0.3;
         velocitySet.twist.linear.y = 0.3;
@@ -866,7 +641,6 @@ void smarteye::Formation::circleCtr(double targetHei)
     }
     else
     {
-<<<<<<< HEAD
         //EstTarDis();
         if(mutualBearing.bearings.size()!=0)
         {
@@ -943,147 +717,12 @@ void smarteye::Formation::circleCtr(double targetHei)
             }
             setVelPub.publish(velocitySet);
 
-=======
-        // EstTarDis();
-
-        if(mutualBearing.bearings.size()!=0)
-        {
-            if(mutualBearing.bearings.size() == 1)
-            {
-                Eigen::Vector2d tbearing;   //和目标的方位
-                Eigen::Vector2d tbearing_star;   //和目标的方位
-                Eigen::Matrix2d Id;
-                Id <<1,0,
-                     0,1;
-                tbearing[0] = targetBearing.bearings[0].x;
-                tbearing[1] = targetBearing.bearings[0].y;
-                tbearing_star[0] = expBearing.bearings[1].x;
-                tbearing_star[1] = expBearing.bearings[1].y;
-                Eigen::Vector2d ctrOutput;  //控制输出
-                Eigen::Vector2d outFromTar;  //从目标得到的控制分量
-
-                //env_k_alpha*((Id-preBea_star*preBea_star.transpose())*preBearing-
-                //       (Id-nextBea_star*nextBea_star.transpose())*nextBearing);
-                //        outFromNei = env_k_alpha*((Id-preBea_star*preBea_star.transpose())*preBearing-
-                //                                 (Id-nextBea_star*nextBea_star.transpose())*nextBearing);
-                outFromTar = env_k_beta*(Id-tbearing*tbearing.transpose())*tbearing_star;
-                ctrOutput = outFromTar;
-
-                heiCtr.currentHei = localPose.pose.position.z;
-                heiCtr.targetHei = targetHei;
-                velocitySet.twist.linear.z = heiCtr.cacOutput();
-                //        if(systemID == 1)
-                //        {
-                //            ROS_INFO("current bearing: x is %f, y is %f",tbearing[0],tbearing[1]);
-                //            ROS_INFO("desired bearing: x is %f, y is %f",tbearing_star[0],tbearing_star[1]);
-                //            ROS_INFO("output: x is %f,y is %f",outFromTar[0],outFromTar[1]);
-                //            ROS_INFO("current position: x is %f, y is %f",localPose.pose.position.x,localPose.pose.position.y+10);
-                //        }
-                Eigen::Matrix2d rotateMatrix;
-                rotateMatrix <<cos(rotTheta),-sin(rotTheta),
-                        sin(rotTheta),cos(rotTheta);
-                ctrOutput = rotateMatrix*ctrOutput;
-                float desiredRadius = 1;
-                float currentRadius = pow((allUavPos.agentPosition[0].x-targetInfo.pose.pose.position.x),2)+
-                        pow((allUavPos.agentPosition[0].y-targetInfo.pose.pose.position.y),2);
-                velocitySet.twist.linear.x = ctrOutput[0]+targetInfo.twist.twist.linear.x
-                        -(sqrt(currentRadius)-desiredRadius)*tbearing[0];
-                velocitySet.twist.linear.y = ctrOutput[1]+targetInfo.twist.twist.linear.y
-                        -(sqrt(currentRadius)-desiredRadius)*tbearing[1];
-                ROS_INFO("current radius is %f",currentRadius);
-
-                setVelPub.publish(velocitySet);
-
-
-            }
-            else
-            {
-                int uavNum = mutualBearing.bearings.size();
-                //ROS_INFO("uavNum is %d",uavNum);
-                Eigen::Vector2d nextBearing;  //和后一个智能体的方位
-                Eigen::Vector2d preBearing;   //和前一个智能体的方位
-                Eigen::Vector2d nextBea_star;  //和后一个智能体的期望方位
-                Eigen::Vector2d preBea_star;   //和前一个智能体的期望方位
-                Eigen::Vector2d tbearing;   //和目标的方位
-                Eigen::Vector2d tbearing_star;   //和目标的方位
-                Eigen::Matrix2d Id;
-                Id <<1,0,
-                        0,1;
-                if(systemID == 1)
-                {
-                    nextBearing[0] = mutualBearing.bearings[systemID-1].x;
-                    nextBearing[1] = mutualBearing.bearings[systemID-1].y;
-                    preBearing[0] = mutualBearing.bearings[uavNum-1].x;
-                    preBearing[1] = mutualBearing.bearings[uavNum-1].y;
-                    nextBea_star[0] = expBearing.bearings[systemID-1].x;
-                    nextBea_star[1] = expBearing.bearings[systemID-1].y;
-                    preBea_star[0] = expBearing.bearings[uavNum-1].x;
-                    preBea_star[1] = expBearing.bearings[uavNum-1].y;
-                }
-                else
-                {
-                    nextBearing[0] = mutualBearing.bearings[systemID-1].x;
-                    nextBearing[1] = mutualBearing.bearings[systemID-1].y;
-                    preBearing[0] = mutualBearing.bearings[systemID-2].x;
-                    preBearing[1] = mutualBearing.bearings[systemID-2].y;
-                    nextBea_star[0] = expBearing.bearings[systemID-1].x;
-                    nextBea_star[1] = expBearing.bearings[systemID-1].y;
-                    preBea_star[0] = expBearing.bearings[systemID-2].x;
-                    preBea_star[1] = expBearing.bearings[systemID-2].y;
-                }
-                tbearing[0] = targetBearing.bearings[systemID-1].x;
-                tbearing[1] = targetBearing.bearings[systemID-1].y;
-                tbearing_star[0] = expBearing.bearings[systemID-1+uavNum].x;
-                tbearing_star[1] = expBearing.bearings[systemID-1+uavNum].y;
-                Eigen::Vector2d ctrOutput;  //控制输出
-                Eigen::Vector2d outFromNei;  //从邻居智能体得到的控制分量
-                Eigen::Vector2d outFromTar;  //从目标得到的控制分量
-                Eigen::Vector2d temp2 = (Id-preBearing*preBearing.transpose())*preBea_star;
-                Eigen::Vector2d temp1 = (Id-nextBearing*nextBearing.transpose())*nextBea_star;
-                outFromNei = env_k_alpha*(temp1 - temp2);
-                //env_k_alpha*((Id-preBea_star*preBea_star.transpose())*preBearing-
-                //       (Id-nextBea_star*nextBea_star.transpose())*nextBearing);
-                //        outFromNei = env_k_alpha*((Id-preBea_star*preBea_star.transpose())*preBearing-
-                //                                 (Id-nextBea_star*nextBea_star.transpose())*nextBearing);
-                outFromTar = env_k_beta*(Id-tbearing*tbearing.transpose())*tbearing_star;
-                ctrOutput = outFromNei + outFromTar;
-
-                heiCtr.currentHei = localPose.pose.position.z;
-                heiCtr.targetHei = targetHei;
-                velocitySet.twist.linear.z = heiCtr.cacOutput();
-                //        if(systemID == 1)
-                //        {
-                //            ROS_INFO("current bearing: x is %f, y is %f",tbearing[0],tbearing[1]);
-                //            ROS_INFO("desired bearing: x is %f, y is %f",tbearing_star[0],tbearing_star[1]);
-                //            ROS_INFO("output: x is %f,y is %f",outFromTar[0],outFromTar[1]);
-                //            ROS_INFO("current position: x is %f, y is %f",localPose.pose.position.x,localPose.pose.position.y+10);
-                //        }
-                Eigen::Matrix2d rotateMatrix;
-                rotateMatrix <<cos(rotTheta),-sin(rotTheta),
-                        sin(rotTheta),cos(rotTheta);
-                ctrOutput = rotateMatrix*ctrOutput;
-                float desiredRadius = 10;
-                float currentRadius = pow((allUavPos.agentPosition[systemID-1].x-targetInfo.pose.pose.position.x),2)+
-                        pow((allUavPos.agentPosition[systemID-1].y-targetInfo.pose.pose.position.y),2);
-                velocitySet.twist.linear.x = ctrOutput[0]+targetInfo.twist.twist.linear.x
-                        -(sqrt(currentRadius)-desiredRadius)*tbearing[0];
-                velocitySet.twist.linear.y = ctrOutput[1]+targetInfo.twist.twist.linear.y
-                        -(sqrt(currentRadius)-desiredRadius)*tbearing[1];
-                ROS_INFO("current radius is %f",currentRadius);
-                if(systemID ==2)
-                {
-                    //ROS_INFO("Estimation is %f,groudtruth is %f",dis2TarEst[0],currentRadius);
-                }
-                setVelPub.publish(velocitySet);
-            }
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
         }
         else
         {
             ROS_WARN("there is no bearing info found!");
             setPositionPub.publish(positionSet);
         }
-<<<<<<< HEAD
     }
 
 }
@@ -1249,10 +888,6 @@ void smarteye::Formation::InitParam()
     positionSet = localPose;
     positionSet.pose.position.z = -1;
     initialHeight = -0.2;
-=======
-
-    }
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
 }
 
 
@@ -1260,19 +895,12 @@ void smarteye::Formation::InitParam()
 smarteye::heiCtrller::heiCtrller()
 {
     ei = 0;
-<<<<<<< HEAD
     hei_kp1 = 2;
     hei_kp2 = 0.9;
     hei_kpdiv = 0.1;
     hei_kd = 0.15;
     hei_ki = 0.01;
     hei_bias = 0.001;
-=======
-    hei_kp = 0.26;
-    hei_kd = 0.1;
-    hei_ki = 0.005;
-    hei_bias = 0.03;
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
 
 }
 

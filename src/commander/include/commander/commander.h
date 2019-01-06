@@ -25,17 +25,12 @@ private:
     void update(const ros::TimerEvent& event);
     ros::Timer  commanderUpdateTimer;
     ros::ServiceClient param_to_formation;
-<<<<<<< HEAD
     ros::ServiceClient param_to_formation2;
     ros::ServiceClient param_to_formation3;
     float hei_ki;
     float hei_kp1;
     float hei_kp2;
     float hei_kpdiv;
-=======
-    float hei_ki;
-    float hei_kp;
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     float hei_kd;
     float hei_bias;
     float xy_ki;
@@ -44,10 +39,7 @@ private:
     float xy_bias;
     float env_k_alpha;
     float env_k_beta;
-<<<<<<< HEAD
     float env_k_gamma;
-=======
->>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     float rotTheta;
     void initParam(void);
 };
