@@ -88,6 +88,10 @@ public:
 private:
 
     int updateHz;
+<<<<<<< HEAD
+=======
+    int systemID;
+>>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     int coordMethod;     //协同方式，是环航还是围捕
     bool IsUseEventTri;   //是否使用event-trigger机制
     bool IsUseSimu;     //是否是仿真模式
@@ -96,7 +100,10 @@ private:
     float cir_sigma2;
     float encir_sigma1;
     float encir_sigma2;
+<<<<<<< HEAD
     int updateCount;
+=======
+>>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     ros::Publisher mutualBearingPub;
     ros::Publisher targetBearingPub;
     ros::Publisher expBearingPub;  //期望方位发布者
@@ -108,12 +115,16 @@ private:
     ros::Publisher agentVelPub;
     ros::Subscriber keyboardSub;
     ros::Subscriber velCmdSub;   //订阅无人机速度命令消息
+<<<<<<< HEAD
     ros::Subscriber targetViconSub;  //订阅vicon系统下的目标位置
     double lastTargetTime;  //vicon系统下上一次接收到目标位置的时间，用于计算target的差分速度
     bearing_common::Vector2D lastTargetPose2D;
     ros::Subscriber uavPosSub1;
     ros::Subscriber uavPosSub2;
     ros::Subscriber uavPosSub3;
+=======
+    ros::Subscriber uavPosSub1;
+>>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
     ros::Subscriber gazeboInfoSub;
     geometry_msgs::PoseStamped positionSet;
     geometry_msgs::PoseStamped localPose;
@@ -122,9 +133,12 @@ private:
     void cacExpBearing();
     void bearingInfoInit();
     void ReceiUavPos1(const geometry_msgs::TransformStampedConstPtr &vicon_msg);
+<<<<<<< HEAD
     void ReceiUavPos2(const geometry_msgs::TransformStampedConstPtr &vicon_msg);
     void ReceiUavPos3(const geometry_msgs::TransformStampedConstPtr &vicon_msg);
     void ReceiveTarViconPose(const geometry_msgs::TransformStampedConstPtr &vicon_msg);
+=======
+>>>>>>> 70c8a32f592250a9fe6be9b4e3ab95881aae7efc
 };
 
 

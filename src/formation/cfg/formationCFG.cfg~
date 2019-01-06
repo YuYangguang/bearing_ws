@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+PACKAGE = "formation"
+
+from dynamic_reconfigure.parameter_generator_catkin import *
+
+gen = ParameterGenerator()
+
+gen.add("ENV_K_ALPHA",    double_t,    0, "parameter k_alpha for encirclement control", 5,  0, 30)
+gen.add("ENV_K_BETA", double_t, 0, "parameter k_beta for encirclement control",    5, 0,   30)
+gen.add("HEI_KP",    double_t,    0, "parameter kp for height control",  0.26, 0, 30)
+gen.add("HEI_KI",    double_t,    0, "parameter ki for height control",  0.005,0, 10)
+gen.add("HEI_KD",    double_t,    0, "parameter kd for height control",  0.1, 0, 5)
+gen.add("HEI_BIAS",    double_t,    0, "parameter bias for height control",  0.03, -1, 1)
+gen.add("XY_KP",    double_t,    0, "parameter kp for height control",  0.2, 0, 30)
+gen.add("XY_KI",    double_t,    0, "parameter ki for height control",  0.003, 0, 10)
+gen.add("XY_KD",    double_t,    0, "parameter kd for height control",  0.05, 0, 5)
+gen.add("XY_BIAS",    double_t,    0, "parameter bias for height control",  0, -1, 1)
+gen.add("ROTT",    double_t,    0, "parameter bias for velocity compensation",  -0.63, -1, 1)
+gen.add("CIR_SIGMA1",    double_t,    0, "parameter  for circlement event condition1",  0.7, 0.1, 10)
+gen.add("CIR_SIGMA2",    double_t,    0, "parameter  for circlement event condition2",  0.7, 0.1, 10)
+gen.add("ENCIR_SIGMA1",    double_t,    0, "parameter  for circlement event condition1",  1.5, 0.1, 10)
+gen.add("ENCIR_SIGMA2",    double_t,    0, "parameter  for circlement event condition2",  1.5, 0.1, 10)
+exit(gen.generate(PACKAGE, "dynamic_reconfigure_node", "formationCFG"))

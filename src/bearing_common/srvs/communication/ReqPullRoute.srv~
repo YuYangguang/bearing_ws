@@ -1,0 +1,4 @@
+#
+uint8 id
+--- 
+mavros_msgs/Waypoint[] other_route
