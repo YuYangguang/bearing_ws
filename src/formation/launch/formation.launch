@@ -2,9 +2,11 @@
 
 <arg name="system_id" default="1" />
 <arg name="viconName"  default="/vicon/nuflie02/nuflie02"/>
+<arg name="SimuFlag" default="true" />
  <node name="formation_node" pkg="formation" type="formation_node"  output="screen" >
       <param name="system_id" value="$(arg system_id)" />
      <param name="viconName" value="$(arg viconName)" />
+    <param name="SimuFlag" value="$(arg SimuFlag)" />
  </node>
 
 </launch>

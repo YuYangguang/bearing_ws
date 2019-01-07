@@ -1,9 +1,9 @@
 <launch>
 
 <node name="keyboard" pkg="keyboard" type="keyboard"/>
-<arg name="uav_num" default="3" />
-<arg name="TriggerFlag" default="true" />
-<arg name="SimuFlag" default="false" />
+<arg name="uav_num" default="5" />
+<arg name="TriggerFlag" default="false" />
+<arg name="SimuFlag" default="true" />
 
     <node name="dynamic" pkg="formation" type="dynamic_reconfigure_node"  output="screen" >
  </node>

@@ -14,7 +14,7 @@ commander::commander(int argc, char **argv, const char *name)
 {
     float updateHz = 2;
     float updateTime = 1.0/updateHz;
-    ros::init(argc, argv, "");
+    ros::init(argc, argv, "commander");
     nh = boost::make_shared<ros::NodeHandle>("~");
     commanderUpdateTimer = nh->createTimer(ros::Duration(updateTime),&commander::update, this);
     param_to_formation = nh->serviceClient<bearing_common::HParamSetSrv>("/uav1/formation/host_param/set_param");

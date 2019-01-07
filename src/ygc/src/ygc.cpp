@@ -53,13 +53,21 @@ ygcClass::ygcClass(int argc, char **argv, const char *name)
     IsGotParam = nh->getParam("SimuFlag",IsUseSimu);
     if(IsGotParam)
     {
-        if(IsUseSimu)
+        if(IsUseSimu) //仿真模式
         {
             ROS_INFO("This station is in simulation mode!");
+            gazeboInfoSub = nh->subscribe("/gazebo/model_states", 5,&ygcClass::ReceiveGazeboInfo, this);
         }
-        else
+        else //实物飞行模式
         {
             ROS_INFO("This station is in real fly mode");
+            uavPosSub1= nh->subscribe("/vicon/nuflie02/nuflie02", 10,
+                                      &ygcClass::ReceiUavPos1,this);
+            uavPosSub2= nh->subscribe("/vicon/nuflie04/nuflie04", 10,
+                                      &ygcClass::ReceiUavPos2,this);
+            uavPosSub3= nh->subscribe("/vicon/nuflie03/nuflie03", 10,
+                                      &ygcClass::ReceiUavPos3,this);
+            targetViconSub = nh->subscribe("/vicon/target/target",2,&ygcClass::ReceiveTarViconPose,this);
         }
     }
     else
@@ -87,7 +95,7 @@ ygcClass::ygcClass(int argc, char **argv, const char *name)
     mutualBearingPub = nh->advertise<bearing_common::GroupBearing>("/ygc/mutual_bearing",2);
     targetBearingPub = nh->advertise<bearing_common::GroupBearing>("/ygc/target_bearing",2);
     expBearingPub = nh->advertise<bearing_common::GroupBearing>("/ygc/expected_bearing",2);
-    //gazeboInfoSub = nh->subscribe("/gazebo/model_states", 5,&ygcClass::ReceiveGazeboInfo, this);
+
     keyboardSub= nh->subscribe("/keyboard/keydown",1,&ygcClass::ReceiveKeybdCmd,this);
     ygcUpdateTimer = nh->createTimer(ros::Duration(updateTime),&ygcClass::update, this);
     bearingUpdateTimer = nh->createTimer(ros::Duration(0.035),&ygcClass::bearingUpdate, this);
@@ -95,13 +103,7 @@ ygcClass::ygcClass(int argc, char **argv, const char *name)
     uavForRec = 1;
     tempName = "/uav"+num2str(uavForRec);
     //velCmdSub = nh->subscribe(tempName+"/mavros/local_position/velocity", 5,&ygcClass::ReceiveCmdInfo1, this);
-    uavPosSub1= nh->subscribe("/vicon/nuflie02/nuflie02", 10,
-                              &ygcClass::ReceiUavPos1,this);
-    uavPosSub2= nh->subscribe("/vicon/nuflie04/nuflie04", 10,
-                              &ygcClass::ReceiUavPos2,this);
-    uavPosSub3= nh->subscribe("/vicon/nuflie03/nuflie03", 10,
-                              &ygcClass::ReceiUavPos3,this);
-    targetViconSub = nh->subscribe("/vicon/target/target",2,&ygcClass::ReceiveTarViconPose,this);
+
     //dataRecPub = nh->advertise<bearing_common::DataRecord>("/ygc/dataRecorded",5);
     targetPosePub = nh->advertise<nav_msgs::Odometry>("/ygc/targetPose",5);
     //dotBearingPub = nh->advertise<bearing_common::GroupBearing>("/ygc/dot_bearing",2);

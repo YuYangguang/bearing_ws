@@ -23,7 +23,6 @@ find_package(catkin REQUIRED COMPONENTS
     mavros_msgs
     sensor_msgs
     bearing_common
-
     )
 
 set(formation_includes
@@ -49,7 +48,7 @@ include/formation.h
 target_link_libraries(formation  ${catkin_LIBRARIES} 
 
 )
-add_dependencies(formation  ${catkin_EXPORTED_TARGETS} )
+add_dependencies(formation  ${catkin_EXPORTED_TARGETS} bearing_common)
 add_executable(formation_node
                include/formation.h
                src/main.cpp

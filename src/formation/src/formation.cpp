@@ -5,29 +5,33 @@
  *      Author: zeroun
  */
 
-#include "formation.h"
 
+
+
+#include "formation.h"
 
 
 
 smarteye::Formation::Formation(int argc, char** argv, const char * name)
 {
     sleep(1);
+    int a =1.0;
     systemID = -1;
     updateHz = 20;
     float updateTime = 1.0/updateHz;
-    ros::init(argc, argv, "");
+    ros::init(argc, argv, "formation");
     nh = boost::make_shared<ros::NodeHandle>("~");
     std::string viconName;
     nh->getParam("viconName", viconName);
     /********初始化参数***************/
     uavState = YGC_HOVER;
-
     bool IsGotParam;
+    bool IsUseSimu;
     IsGotParam = nh->getParam("system_id",systemID);
     if(IsGotParam)
     {
         ROS_INFO("got system id successfully and id is %d",systemID);
+
     }
     else
     {
@@ -36,18 +40,42 @@ smarteye::Formation::Formation(int argc, char** argv, const char * name)
     }
     std::string uavName;
     uavName = "/uav"+num2str(systemID);
-    //后面此处应加入uav数量
-    std::string neighUAVname;
-    int neighUAVID;
-    if(systemID == 3)
+    IsGotParam = nh->getParam("SimuFlag",IsUseSimu);
+    if(IsGotParam)
     {
-        neighUAVID = 1;
+        if(IsUseSimu) //仿真模式
+        {
+            ROS_INFO("This formation node is in simulation mode!");
+            localPoseSub = nh->subscribe(uavName+"/mavros/local_position/pose", 10, &smarteye::Formation::ReceiveLocalPose,this);
+            dotBearingSub = nh->subscribe("/ygc/dot_bearing",3,&smarteye::Formation::ReceiveDotBearing,this);
+
+        }
+        else //实物飞行模式
+        {
+            ROS_INFO("This formation node  is in real fly mode");
+            viconPositionSubsciber = nh->subscribe(viconName, 10, &smarteye::Formation::viconPositionReceived,this);
+            currentViconPositionPublisher = nh->advertise<geometry_msgs::PoseStamped>(uavName+"/mavros/mocap/pose",10);
+
+        }
     }
     else
     {
-        neighUAVID = systemID+1;
+        ROS_ERROR("failed to get simulation flag and node is shut down");
+        exit(0);
     }
-    neighUAVname = "/uav"+num2str(neighUAVID);
+
+    //后面此处应加入uav数量
+//    std::string neighUAVname;
+//    int neighUAVID;
+//    if(systemID == 3)
+//    {
+//        neighUAVID = 1;
+//    }
+//    else
+//    {
+//        neighUAVID = systemID+1;
+//    }
+//    neighUAVname = "/uav"+num2str(neighUAVID);
     setPositionPub = nh->advertise<geometry_msgs::PoseStamped>
             (uavName+"/mavros/setpoint_position/local",10);
     px4StateSub = nh->subscribe(uavName+"/mavros/state", 10,&smarteye::Formation::ReceiveStateInfo, this);
@@ -65,20 +93,18 @@ smarteye::Formation::Formation(int argc, char** argv, const char * name)
     expBearingSub = nh->subscribe("/ygc/expected_bearing",2,
                                   &smarteye::Formation::ReceiveExpBearing,this);
     keyboardSub= nh->subscribe("/keyboard/keydown",1,&Formation::ReceiveKeybdCmd,this);
-    //    localPoseSub = nh->subscribe(uavName+"/mavros/local_position/pose", 10,
-    //                                 &smarteye::Formation::ReceiveLocalPose,this);
+
     targetInfoSub = nh->subscribe("/ygc/targetPose",2,
                                   &smarteye::Formation::ReceiveTargetInfo,this);
     setVelPub = nh->advertise<geometry_msgs::TwistStamped>(uavName+"/mavros/setpoint_velocity/cmd_vel", 10);
     allPoseSub = nh->subscribe("/ygc/allPosition",3,&smarteye::Formation::ReceiveAllPose,this);
-    //dotBearingSub = nh->subscribe("/ygc/dot_bearing",3,&smarteye::Formation::ReceiveDotBearing,this);
+
     //    selfVelSub = nh->subscribe(uavName+"/mavros/local_position/velocity", 10,
     //                               &smarteye::Formation::ReceiveSelfVel,this);
     //    neighborVelSub = nh->subscribe(neighUAVname+"/mavros/local_position/velocity", 10,
     //                                   &smarteye::Formation::ReceiveNeighborVel,this);
     //agentVelSub = nh->subscribe("/ygc/agentVel",3,&smarteye::Formation::ReceiveAgentVel,this);
-    viconPositionSubsciber = nh->subscribe(viconName, 10, &smarteye::Formation::viconPositionReceived,this);
-    currentViconPositionPublisher = nh->advertise<geometry_msgs::PoseStamped>(uavName+"/mavros/mocap/pose",10);
+
     receiveHParamSrv = nh->advertiseService(uavName+"/formation/host_param/set_param"
                                             ,&smarteye::Formation::receiveHParamSetSrv,this);
     InitParam();
@@ -399,21 +425,21 @@ void smarteye::Formation::viconUpdate(const ros::TimerEvent &event)
     currentViconPositionPublisher.publish(uavCurrentViconPose);
 }
 
-//void smarteye::Formation::ReceiveLocalPose(const geometry_msgs::PoseStampedConstPtr &msg)
-//{
-//    localPose.pose.position.x = msg->pose.position.x;
-//    localPose.pose.position.y = msg->pose.position.y;
-//    localPose.pose.position.z = msg->pose.position.z;
-//    localPose.pose.orientation.x = msg->pose.orientation.x;
-//    localPose.pose.orientation.y = msg->pose.orientation.y;
-//    localPose.pose.orientation.z = msg->pose.orientation.z;
-//    localPose.pose.orientation.w = msg->pose.orientation.w;
-//    // Using ROS tf to get RPY angle from Quaternion
-//    tf::Quaternion quat;
-//    tf::quaternionMsgToTF(localPose.pose.orientation, quat);
-//    tf::Matrix3x3(quat).getRPY(uavRollENU, uavPitchENU, uavYawENU);
+void smarteye::Formation::ReceiveLocalPose(const geometry_msgs::PoseStampedConstPtr &msg)
+{
+    localPose.pose.position.x = msg->pose.position.x;
+    localPose.pose.position.y = msg->pose.position.y;
+    localPose.pose.position.z = msg->pose.position.z;
+    localPose.pose.orientation.x = msg->pose.orientation.x;
+    localPose.pose.orientation.y = msg->pose.orientation.y;
+    localPose.pose.orientation.z = msg->pose.orientation.z;
+    localPose.pose.orientation.w = msg->pose.orientation.w;
+    // Using ROS tf to get RPY angle from Quaternion
+    tf::Quaternion quat;
+    tf::quaternionMsgToTF(localPose.pose.orientation, quat);
+    tf::Matrix3x3(quat).getRPY(uavRollENU, uavPitchENU, uavYawENU);
 
-//}
+}
 
 void smarteye::Formation::ReceiveMulBearing(const bearing_common::GroupBearingConstPtr &msg)
 {

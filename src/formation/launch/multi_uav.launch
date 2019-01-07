@@ -11,34 +11,40 @@
  <arg name="target_id" default="0" /> 
     <include file="$(find formation)/launch/formation.launch">
       <arg name="system_id" value="$(arg uav1_id)" />
+<arg name="SimuFlag" default="true" />
     </include>
 
 
   <group ns="uav2">
     <include file="$(find formation)/launch/formation.launch">
       <arg name="system_id" value="$(arg uav2_id)" />
+<arg name="SimuFlag" default="true" />
     </include>
   </group>
 
   <group ns="uav3">
     <include file="$(find formation)/launch/formation.launch">
       <arg name="system_id" value="$(arg uav3_id)" />
+<arg name="SimuFlag" default="true" />
     </include>
   </group>
 
   <group ns="uav4">
     <include file="$(find formation)/launch/formation.launch">
       <arg name="system_id" value="$(arg uav4_id)" />
+<arg name="SimuFlag" default="true" />
     </include>
   </group>
   <group ns="uav5">
     <include file="$(find formation)/launch/formation.launch">
       <arg name="system_id" value="$(arg uav5_id)" />
+<arg name="SimuFlag" default="true" />
     </include>
   </group>
  <!-- <group ns="uav0">
     <include file="$(find formation)/launch/formation.launch">
       <arg name="system_id" value="$(arg target_id)" />
+<arg name="SimuFlag" default="true" />
     </include>
   </group>-->
 
