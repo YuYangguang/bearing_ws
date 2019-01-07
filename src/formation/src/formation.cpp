@@ -55,6 +55,7 @@ smarteye::Formation::Formation(int argc, char** argv, const char * name)
             ROS_INFO("This formation node  is in real fly mode");
             viconPositionSubsciber = nh->subscribe(viconName, 10, &smarteye::Formation::viconPositionReceived,this);
             currentViconPositionPublisher = nh->advertise<geometry_msgs::PoseStamped>(uavName+"/mavros/mocap/pose",10);
+            viconUpdateTimer = nh->createTimer(ros::Duration(0.03),&Formation::viconUpdate, this);
 
         }
     }
@@ -81,8 +82,7 @@ smarteye::Formation::Formation(int argc, char** argv, const char * name)
     px4StateSub = nh->subscribe(uavName+"/mavros/state", 10,&smarteye::Formation::ReceiveStateInfo, this);
     formationUpdateTimer = nh->createTimer(ros::Duration(updateTime),
                                            &Formation::update, this);
-    viconUpdateTimer = nh->createTimer(ros::Duration(0.03),
-                                       &Formation::viconUpdate, this);
+
     arming_client = nh->serviceClient<mavros_msgs::CommandBool>(uavName+"/mavros/cmd/arming");
     setModeClient = nh->serviceClient<mavros_msgs::SetMode>(uavName+"/mavros/set_mode");
     takoffClient = nh->serviceClient<mavros_msgs::SetMode>(uavName+"/mavros/cmd/takeoff");
@@ -783,22 +783,13 @@ void smarteye::Formation::circleCtr(double targetHei)
                 Eigen::Vector2d ctrOutput;  //控制输出
                 Eigen::Vector2d outFromTar;  //从目标得到的控制分量
 
-                //env_k_alpha*((Id-preBea_star*preBea_star.transpose())*preBearing-
-                //       (Id-nextBea_star*nextBea_star.transpose())*nextBearing);
-                //        outFromNei = env_k_alpha*((Id-preBea_star*preBea_star.transpose())*preBearing-
-                //                                 (Id-nextBea_star*nextBea_star.transpose())*nextBearing);
+
                 outFromTar = env_k_beta*(Id-tbearing*tbearing.transpose())*tbearing_star;
                 ctrOutput = outFromTar;
                 heiCtr.currentHei = localPose.pose.position.z;
                 heiCtr.targetHei = targetHei;
                 velocitySet.twist.linear.z = heiCtr.cacOutput();
-                //        if(systemID == 1)
-                //        {
-                //            ROS_INFO("current bearing: x is %f, y is %f",tbearing[0],tbearing[1]);
-                //            ROS_INFO("desired bearing: x is %f, y is %f",tbearing_star[0],tbearing_star[1]);
-                //            ROS_INFO("output: x is %f,y is %f",outFromTar[0],outFromTar[1]);
-                //            ROS_INFO("current position: x is %f, y is %f",localPose.pose.position.x,localPose.pose.position.y+10);
-                //        }
+
                 Eigen::Matrix2d rotateMatrix;
                 rotateMatrix <<cos(rotTheta),-sin(rotTheta),
                         sin(rotTheta),cos(rotTheta);
