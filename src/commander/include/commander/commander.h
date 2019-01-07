@@ -24,9 +24,7 @@ private:
     boost::shared_ptr<ros::NodeHandle> nh;
     void update(const ros::TimerEvent& event);
     ros::Timer  commanderUpdateTimer;
-    ros::ServiceClient param_to_formation;
-    ros::ServiceClient param_to_formation2;
-    ros::ServiceClient param_to_formation3;
+    ros::ServiceClient* param_set_clinet;
     float hei_ki;
     float hei_kp1;
     float hei_kp2;
@@ -41,6 +39,7 @@ private:
     float env_k_beta;
     float env_k_gamma;
     float rotTheta;
+    int uavNum;
     void initParam(void);
 };
 

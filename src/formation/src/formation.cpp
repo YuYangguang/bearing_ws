@@ -10,7 +10,8 @@
 
 #include "formation.h"
 
-
+#define TARGET_HEIGHT_SIMU  2
+#define TARGET_ID 9   //target的ID号
 
 smarteye::Formation::Formation(int argc, char** argv, const char * name)
 {
@@ -26,7 +27,7 @@ smarteye::Formation::Formation(int argc, char** argv, const char * name)
     /********初始化参数***************/
     uavState = YGC_HOVER;
     bool IsGotParam;
-    bool IsUseSimu;
+
     IsGotParam = nh->getParam("system_id",systemID);
     if(IsGotParam)
     {
@@ -66,17 +67,17 @@ smarteye::Formation::Formation(int argc, char** argv, const char * name)
     }
 
     //后面此处应加入uav数量
-//    std::string neighUAVname;
-//    int neighUAVID;
-//    if(systemID == 3)
-//    {
-//        neighUAVID = 1;
-//    }
-//    else
-//    {
-//        neighUAVID = systemID+1;
-//    }
-//    neighUAVname = "/uav"+num2str(neighUAVID);
+    //    std::string neighUAVname;
+    //    int neighUAVID;
+    //    if(systemID == 3)
+    //    {
+    //        neighUAVID = 1;
+    //    }
+    //    else
+    //    {
+    //        neighUAVID = systemID+1;
+    //    }
+    //    neighUAVname = "/uav"+num2str(neighUAVID);
     setPositionPub = nh->advertise<geometry_msgs::PoseStamped>
             (uavName+"/mavros/setpoint_position/local",10);
     px4StateSub = nh->subscribe(uavName+"/mavros/state", 10,&smarteye::Formation::ReceiveStateInfo, this);
@@ -128,43 +129,6 @@ bool smarteye::Formation::receiveHParamSetSrv(bearing_common::HParamSetSrv::Requ
     ROS_INFO("I've received new Param: name: %s value: %f",req.param_id.c_str(),req.param_value);
     res.paramset_ack = true;
     bool isAck = true;
-    //    if(timecount==1)
-    //    {
-    //        ros::param::get("/dynamic/HEI_KI",heiCtr.hei_ki);
-    //    }
-    //    if(timecount==3)
-    //    {
-    //        ros::param::get("/dynamic/HEI_KP",heiCtr.hei_kp);
-    //    }
-    //    if(timecount == 6)
-    //    {
-    //        ros::param::get("/dynamic/HEI_KD",heiCtr.hei_kd);
-    //    }
-    //    if(timecount == 9)
-    //    {
-    //        ros::param::get("/dynamic/HEI_BIAS",heiCtr.hei_bias);
-    //    }
-    //    if(timecount==12)
-    //    {
-    //        ros::param::get("/dynamic/XY_KI",xCtr.xy_ki);
-    //        yCtr.xy_ki = xCtr.xy_ki;
-    //    }
-    //    if(timecount==15)
-    //    {
-    //        ros::param::get("/dynamic/XY_KP",xCtr.xy_kp);
-    //        yCtr.xy_kp = xCtr.xy_kp;
-    //    }
-    //    if(timecount==18)
-    //    {
-    //        ros::param::get("/dynamic/XY_KD",xCtr.xy_kd);
-    //        yCtr.xy_kd = xCtr.xy_kd;
-    //    }
-    //    if(timecount>25)
-    //    {
-    //        ros::param::get("/dynamic/XY_BIAS",xCtr.xy_bias);
-    //        timecount = 0;
-    //        yCtr.xy_bias = xCtr.xy_bias;
-    //    }
     if(req.param_id == "HEI_KI")
         heiCtr.hei_ki =req.param_value;
     else if(req.param_id == "HEI_KP1")
@@ -402,12 +366,26 @@ void smarteye::Formation::update(const ros::TimerEvent &event)
     }
     case YGC_ENCIRCLE:
     {
-        encircleCtr(1.3+initialHeight);
+        if(!IsUseSimu)   //实物模式
+        {
+            encircleCtr(1.3+initialHeight);
+        }
+        else
+        {
+            encircleCtr(TARGET_HEIGHT_SIMU);
+        }
         break;
     }
     case YGC_CIRCLE:
     {
-        circleCtr(1.3+initialHeight);
+        if(!IsUseSimu)   //实物模式
+        {
+            circleCtr(1.3+initialHeight);
+        }
+        else
+        {
+            circleCtr(TARGET_HEIGHT_SIMU+0.1*systemID);
+        }
         break;
     }
     default:
@@ -615,15 +593,21 @@ void smarteye::Formation::EstTarDis()
 
 void smarteye::Formation::takeoffCtr()
 {
-    if(localPose.pose.position.z-initialHeight<0.8)
+    if(!IsUseSimu) // 实物飞行模式
     {
-        positionSet.pose.position.z = localPose.pose.position.z+0.15+initialHeight;
+        if(localPose.pose.position.z-initialHeight<0.8)
+        {
+            positionSet.pose.position.z = localPose.pose.position.z+0.15+initialHeight;
+        }
+        else
+        {
+            positionSet.pose.position.z = 1+initialHeight;
+        }
     }
-    else
+    else   //仿真模式
     {
-        positionSet.pose.position.z = 1+initialHeight;
+        positionSet.pose.position.z = TARGET_HEIGHT_SIMU;
     }
-    //    positionSet.pose.position.z = 1.5;
     setPositionPub.publish(positionSet);
 
 }
@@ -645,21 +629,21 @@ void smarteye::Formation::landCtr()
 
 void smarteye::Formation::encircleCtr(double targetHei)
 {
-//    heiCtr.currentHei = localPose.pose.position.z;
-//    heiCtr.targetHei = targetHei;
-//    velocitySet.twist.linear.z = heiCtr.cacOutput();
-//    xCtr.currentPos = localPose.pose.position.x;
-//    xCtr.targetPos = 0;
-//    velocitySet.twist.linear.x = xCtr.cacOutput();
+    //    heiCtr.currentHei = localPose.pose.position.z;
+    //    heiCtr.targetHei = targetHei;
+    //    velocitySet.twist.linear.z = heiCtr.cacOutput();
+    //    xCtr.currentPos = localPose.pose.position.x;
+    //    xCtr.targetPos = 0;
+    //    velocitySet.twist.linear.x = xCtr.cacOutput();
 
-//    yCtr.currentPos = localPose.pose.position.y;
-//    yCtr.targetPos = 0;
-//    velocitySet.twist.linear.y = yCtr.cacOutput();
-//    velocitySet.twist.angular.x = 0;
-//    velocitySet.twist.angular.y = 0;
-//    velocitySet.twist.angular.z = 0;
-//    setVelPub.publish(velocitySet);
-    if(systemID == 0)
+    //    yCtr.currentPos = localPose.pose.position.y;
+    //    yCtr.targetPos = 0;
+    //    velocitySet.twist.linear.y = yCtr.cacOutput();
+    //    velocitySet.twist.angular.x = 0;
+    //    velocitySet.twist.angular.y = 0;
+    //    velocitySet.twist.angular.z = 0;
+    //    setVelPub.publish(velocitySet);
+    if(systemID == TARGET_ID)
     {
         velocitySet.twist.linear.x = 0.3;
         velocitySet.twist.linear.y = 0.3;
@@ -708,7 +692,7 @@ void smarteye::Formation::encircleCtr(double targetHei)
             tbearing_star[0] = expBearing.bearings[systemID-1+uavNum].x;
             tbearing_star[1] = expBearing.bearings[systemID-1+uavNum].y;
             //ROS_INFO("real x is %f,y is %f",tbearing[0],tbearing[1]);
-           // ROS_INFO("expected x is %f,y is %f",tbearing_star[0],tbearing_star[1]);
+            // ROS_INFO("expected x is %f,y is %f",tbearing_star[0],tbearing_star[1]);
             Eigen::Vector2d ctrOutput;  //控制输出
             Eigen::Vector2d outFromNei;  //从邻居智能体得到的控制分量
             Eigen::Vector2d outFromTar;  //从目标得到的控制分量
@@ -756,11 +740,11 @@ void smarteye::Formation::encircleCtr(double targetHei)
 void smarteye::Formation::circleCtr(double targetHei)
 {
 
-
-    if(systemID == 0)  //目标控制
+    double currentTime = ros::Time::now().toSec();
+    if(systemID == TARGET_ID)  //目标控制
     {
-        velocitySet.twist.linear.x = 0.3;
-        velocitySet.twist.linear.y = 0.3;
+        velocitySet.twist.linear.x = 0.6*sin(currentTime/4/M_PI);
+        velocitySet.twist.linear.y = 0.6*cos(currentTime/4/M_PI);
         setVelPub.publish(velocitySet);
     }
     else
@@ -802,6 +786,7 @@ void smarteye::Formation::circleCtr(double targetHei)
                 velocitySet.twist.linear.y = ctrOutput[1]+targetInfo.twist.twist.linear.y
                         -(sqrt(currentRadius)-desiredRadius)*tbearing[1]*env_k_gamma;
                 setVelPub.publish(velocitySet);
+
 
 
             }
@@ -850,28 +835,18 @@ void smarteye::Formation::circleCtr(double targetHei)
                 Eigen::Vector2d temp2 = (Id-preBearing*preBearing.transpose())*preBea_star;
                 Eigen::Vector2d temp1 = (Id-nextBearing*nextBearing.transpose())*nextBea_star;
                 outFromNei = env_k_alpha*(temp1 - temp2);
-                //env_k_alpha*((Id-preBea_star*preBea_star.transpose())*preBearing-
-                //       (Id-nextBea_star*nextBea_star.transpose())*nextBearing);
-                //        outFromNei = env_k_alpha*((Id-preBea_star*preBea_star.transpose())*preBearing-
-                //                                 (Id-nextBea_star*nextBea_star.transpose())*nextBearing);
                 outFromTar = env_k_beta*(Id-tbearing*tbearing.transpose())*tbearing_star;
                 ctrOutput = outFromNei + outFromTar;
 
                 heiCtr.currentHei = localPose.pose.position.z;
                 heiCtr.targetHei = targetHei;
                 velocitySet.twist.linear.z = heiCtr.cacOutput();
-                //        if(systemID == 1)
-                //        {
-                //            ROS_INFO("current bearing: x is %f, y is %f",tbearing[0],tbearing[1]);
-                //            ROS_INFO("desired bearing: x is %f, y is %f",tbearing_star[0],tbearing_star[1]);
-                //            ROS_INFO("output: x is %f,y is %f",outFromTar[0],outFromTar[1]);
-                //            ROS_INFO("current position: x is %f, y is %f",localPose.pose.position.x,localPose.pose.position.y+10);
-                //        }
+
                 Eigen::Matrix2d rotateMatrix;
                 rotateMatrix <<cos(rotTheta),-sin(rotTheta),
                         sin(rotTheta),cos(rotTheta);
                 ctrOutput = rotateMatrix*ctrOutput;
-                float desiredRadius = 2;
+                float desiredRadius = 4;
                 float currentRadius = pow((allUavPos.agentPosition[systemID-1].x-targetInfo.pose.pose.position.x),2)+
                         pow((allUavPos.agentPosition[systemID-1].y-targetInfo.pose.pose.position.y),2);
                 velocitySet.twist.linear.x = ctrOutput[0]+targetInfo.twist.twist.linear.x
@@ -879,11 +854,12 @@ void smarteye::Formation::circleCtr(double targetHei)
                 velocitySet.twist.linear.y = ctrOutput[1]+targetInfo.twist.twist.linear.y
                         -(sqrt(currentRadius)-desiredRadius)*tbearing[1]*env_k_gamma;
                 ROS_INFO("current radius is %f",sqrt(currentRadius));
-                if(systemID ==2)
-                {
-                    //ROS_INFO("Estimation is %f,groudtruth is %f",dis2TarEst[0],currentRadius);
-                }
+//                if(systemID ==1)
+//                {
+//                    ROS_ERROR("target height is %f",targetHei);
+//                }
                 setVelPub.publish(velocitySet);
+                ROS_INFO("gamma is %f",env_k_gamma);
             }
         }
         else

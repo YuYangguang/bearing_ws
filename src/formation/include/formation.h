@@ -71,6 +71,7 @@ public:
     ros::Timer  viconUpdateTimer;
     boost::shared_ptr<ros::NodeHandle> nh;
     std::string num2str(int i);
+    bool IsUseSimu;
 
     bearing_common::GroupBearing mutualBearing;
     bearing_common::GroupBearing targetBearing;
@@ -86,6 +87,7 @@ public:
     bool receiveHParamSetSrv(bearing_common::HParamSetSrv::Request &req, bearing_common::HParamSetSrv::Response &res);
     void ReceiveStateInfo(const mavros_msgs::State::ConstPtr& msg);
     void ReceiveKeybdCmd(const keyboard::Key &key);
+
 private:
     int updateHz;
     int timecount;

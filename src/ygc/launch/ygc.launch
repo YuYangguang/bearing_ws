@@ -12,6 +12,7 @@
   <node name="rqt" pkg="rqt_reconfigure" type="rqt_reconfigure"  output="screen" >
  </node>
   <node name="commander" pkg="commander" type="commander_node"  output="screen" >
+<param name="uav_num" value="$(arg uav_num)" />
   </node>
  <node name="ygc_node" pkg="ygc" type="ygc_node"  output="screen" >
       <param name="uav_num" value="$(arg uav_num)" />

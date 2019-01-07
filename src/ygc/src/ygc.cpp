@@ -252,10 +252,10 @@ void ygcClass::ReceiveGazeboInfo(const gazebo_msgs::ModelStates::ConstPtr &msg)
         }
     }
 
-    if(!IsUseEventTri)
+    if(!IsUseEventTri)   //如果不使用事件驱动机制
     {
 
-        if(delta_time<0.3 &&(delta_time>1E-2))
+        if(delta_time<0.3 &&(delta_time>1E-4))  //主要防止delta_time为0的情况
         {
             for(int i=0;i<uavNum;i++)
             {
@@ -287,12 +287,13 @@ void ygcClass::ReceiveGazeboInfo(const gazebo_msgs::ModelStates::ConstPtr &msg)
             }
 
         }
-        if(delta_time>1E-2)
+        if(delta_time>1E-4)
         {
             lastBearUpTime = updateTime;
             lastMutuBearing = mutualBearing;
         }
     }
+
 
 
 }

@@ -41,6 +41,12 @@
 <arg name="SimuFlag" default="true" />
     </include>
   </group>
+  <group ns="uav9">
+    <include file="$(find formation)/launch/formation.launch">
+      <arg name="system_id" value="9" />
+<arg name="SimuFlag" default="true" />
+    </include>
+  </group>
  <!-- <group ns="uav0">
     <include file="$(find formation)/launch/formation.launch">
       <arg name="system_id" value="$(arg target_id)" />

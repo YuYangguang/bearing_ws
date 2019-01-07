@@ -16,10 +16,33 @@ commander::commander(int argc, char **argv, const char *name)
     float updateTime = 1.0/updateHz;
     ros::init(argc, argv, "commander");
     nh = boost::make_shared<ros::NodeHandle>("~");
+
+    bool IsGotParam = nh->getParam("uav_num",uavNum);
+    if(IsGotParam)
+    {
+        ROS_INFO(" commander_node uav number is %d",uavNum);
+        if(uavNum < 1)
+        {
+            ROS_ERROR("invalid uav total number, and the node is shut down");
+            exit(0);
+        }
+    }
+    else
+    {
+        ROS_ERROR("failed to get uav number and commander node is shut down");
+        exit(0);
+    }
     commanderUpdateTimer = nh->createTimer(ros::Duration(updateTime),&commander::update, this);
-    param_to_formation = nh->serviceClient<bearing_common::HParamSetSrv>("/uav1/formation/host_param/set_param");
-    param_to_formation2 = nh->serviceClient<bearing_common::HParamSetSrv>("/uav2/formation/host_param/set_param");
-    param_to_formation3 = nh->serviceClient<bearing_common::HParamSetSrv>("/uav3/formation/host_param/set_param");
+    param_set_clinet = new ros::ServiceClient[uavNum];
+    //param_set_clinet[1] = nh->serviceClient<bearing_common::HParamSetSrv>("/formation/host_param/set_param");
+    std::string uavName;
+    std::stringstream strnum;
+    for(int k=0;k<uavNum;k++)
+    {
+        strnum<<(k+1);
+        uavName = "/uav"+strnum.str();
+        param_set_clinet[k] = nh->serviceClient<bearing_common::HParamSetSrv>(uavName+"/formation/host_param/set_param");
+    }
 }
 
 commander::~commander()
@@ -39,20 +62,14 @@ void commander::update(const ros::TimerEvent &event)
         hei_ki = tempParam;
         srv.request.param_id = "HEI_KI";
         srv.request.param_value = tempParam;
-        IsSuccess=param_to_formation.call(srv);
-        if(!IsSuccess)
+        for(int k=0;k<uavNum;k++)
         {
-            ROS_WARN("fail to set param HEI_KI");
-        }
-        IsSuccess=param_to_formation2.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("2 fail to set param HEI_KI");
-        }
-        IsSuccess=param_to_formation3.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("3 fail to set param HEI_KI");
+            IsSuccess=param_set_clinet[k].call(srv);
+            if(!IsSuccess)
+            {
+                ROS_WARN("%d fail to set param HEI_KI",k);
+            }
+
         }
     }
     ros::param::get("/dynamic/HEI_KP1",tempParam);
@@ -64,21 +81,16 @@ void commander::update(const ros::TimerEvent &event)
         hei_kp1 = tempParam;
         srv.request.param_id = "HEI_KP1";
         srv.request.param_value = tempParam;
-        IsSuccess=param_to_formation.call(srv);
-        if(!IsSuccess)
+        for(int k=0;k<uavNum;k++)
         {
-            ROS_WARN("fail to set param HEI_KP1");
+            IsSuccess=param_set_clinet[k].call(srv);
+            if(!IsSuccess)
+            {
+                ROS_WARN("%d fail to set param HEI_KPI",k);
+            }
+
         }
-        IsSuccess=param_to_formation2.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("2 fail to set param HEI_KP1");
-        }
-        IsSuccess=param_to_formation3.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("3 fail to set param HEI_KP1");
-        }
+
     }
     ros::param::get("/dynamic/HEI_KP2",tempParam);
     if(fabs(hei_kp2-tempParam)>1e-7)
@@ -87,21 +99,16 @@ void commander::update(const ros::TimerEvent &event)
         hei_kp2 = tempParam;
         srv.request.param_id = "HEI_KP2";
         srv.request.param_value = tempParam;
-        IsSuccess=param_to_formation.call(srv);
-        if(!IsSuccess)
+        for(int k=0;k<uavNum;k++)
         {
-            ROS_WARN("fail to set param HEI_KP2");
+            IsSuccess=param_set_clinet[k].call(srv);
+            if(!IsSuccess)
+            {
+                ROS_WARN("%d fail to set param HEI__KP2",k);
+            }
+
         }
-        IsSuccess=param_to_formation2.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("2 fail to set param HEI_KP2");
-        }
-        IsSuccess=param_to_formation3.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("3 fail to set param HEI_KP2");
-        }
+
     }
     ros::param::get("/dynamic/HEI_KPDIV",tempParam);
     if(fabs(hei_kpdiv-tempParam)>1e-7)
@@ -110,20 +117,15 @@ void commander::update(const ros::TimerEvent &event)
         hei_kpdiv = tempParam;
         srv.request.param_id = "HEI_KPDIV";
         srv.request.param_value = tempParam;
-        IsSuccess=param_to_formation.call(srv);
-        if(!IsSuccess)
+
+        for(int k=0;k<uavNum;k++)
         {
-            ROS_WARN("fail to set param HEI_KPDIV");
-        }
-        IsSuccess=param_to_formation2.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("2 fail to set param HEI_KPDIV");
-        }
-        IsSuccess=param_to_formation3.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("3 fail to set param HEI_KPDIV");
+            IsSuccess=param_set_clinet[k].call(srv);
+            if(!IsSuccess)
+            {
+                ROS_WARN("%d fail to set param HEI__KPDIV",k);
+            }
+
         }
     }
     ros::param::get("/dynamic/HEI_KD",tempParam);
@@ -132,20 +134,15 @@ void commander::update(const ros::TimerEvent &event)
         hei_kd = tempParam;
         srv.request.param_id = "HEI_KD";
         srv.request.param_value = tempParam;
-        IsSuccess=param_to_formation.call(srv);
-        if(!IsSuccess)
+
+        for(int k=0;k<uavNum;k++)
         {
-            ROS_WARN("fail to set param HEI_KD");
-        }
-        IsSuccess=param_to_formation2.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("2 fail to set param HEI_KD");
-        }
-        IsSuccess=param_to_formation3.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("3 fail to set param HEI_KD");
+            IsSuccess=param_set_clinet[k].call(srv);
+            if(!IsSuccess)
+            {
+                ROS_WARN("%d fail to set param HEI_KD",k);
+            }
+
         }
     }
     ros::param::get("/dynamic/HEI_BIAS",tempParam);
@@ -154,20 +151,14 @@ void commander::update(const ros::TimerEvent &event)
         hei_bias = tempParam;
         srv.request.param_id = "HEI_BIAS";
         srv.request.param_value = tempParam;
-        IsSuccess=param_to_formation.call(srv);
-        if(!IsSuccess)
+        for(int k=0;k<uavNum;k++)
         {
-            ROS_WARN("fail to set param HEI_BIAS");
-        }
-        IsSuccess=param_to_formation2.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("2 fail to set param HEI_BIAS");
-        }
-        IsSuccess=param_to_formation3.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("3 fail to set param HEI_BIAS");
+            IsSuccess=param_set_clinet[k].call(srv);
+            if(!IsSuccess)
+            {
+                ROS_WARN("%d fail to set param HEI_BIAS",k);
+            }
+
         }
     }
     ros::param::get("/dynamic/XY_BIAS",tempParam);
@@ -176,20 +167,14 @@ void commander::update(const ros::TimerEvent &event)
         xy_bias = tempParam;
         srv.request.param_id = "XY_BIAS";
         srv.request.param_value = tempParam;
-        IsSuccess=param_to_formation.call(srv);
-        if(!IsSuccess)
+        for(int k=0;k<uavNum;k++)
         {
-            ROS_WARN("fail to set param XY_BIAS");
-        }
-        IsSuccess=param_to_formation2.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("2 fail to set param XY_BIAS");
-        }
-        IsSuccess=param_to_formation3.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("3 fail to set param XY_BIAS");
+            IsSuccess=param_set_clinet[k].call(srv);
+            if(!IsSuccess)
+            {
+                ROS_WARN("%d fail to set param XY_BIAS",k);
+            }
+
         }
     }
     ros::param::get("/dynamic/XY_KP",tempParam);
@@ -198,20 +183,14 @@ void commander::update(const ros::TimerEvent &event)
         xy_kp = tempParam;
         srv.request.param_id = "XY_KP";
         srv.request.param_value = tempParam;
-        IsSuccess=param_to_formation.call(srv);
-        if(!IsSuccess)
+        for(int k=0;k<uavNum;k++)
         {
-            ROS_WARN("fail to set param XY_KP");
-        }
-        IsSuccess=param_to_formation2.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("2 fail to set param XY_KP");
-        }
-        IsSuccess=param_to_formation3.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("3 fail to set param XY_KP");
+            IsSuccess=param_set_clinet[k].call(srv);
+            if(!IsSuccess)
+            {
+                ROS_WARN("%d fail to set param XY_KP",k);
+            }
+
         }
     }
     ros::param::get("/dynamic/XY_KI",tempParam);
@@ -220,20 +199,14 @@ void commander::update(const ros::TimerEvent &event)
         xy_ki = tempParam;
         srv.request.param_id = "XY_KI";
         srv.request.param_value = tempParam;
-        IsSuccess=param_to_formation.call(srv);
-        if(!IsSuccess)
+        for(int k=0;k<uavNum;k++)
         {
-            ROS_WARN("fail to set param XY_KI");
-        }
-        IsSuccess=param_to_formation2.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("2 fail to set param XY_KI");
-        }
-        IsSuccess=param_to_formation3.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("3 fail to set param XY_KI");
+            IsSuccess=param_set_clinet[k].call(srv);
+            if(!IsSuccess)
+            {
+                ROS_WARN("%d fail to set param XY_KI",k);
+            }
+
         }
     }
     ros::param::get("/dynamic/XY_KD",tempParam);
@@ -242,20 +215,14 @@ void commander::update(const ros::TimerEvent &event)
         xy_kd = tempParam;
         srv.request.param_id = "XY_KD";
         srv.request.param_value = tempParam;
-        IsSuccess=param_to_formation.call(srv);
-        if(!IsSuccess)
+        for(int k=0;k<uavNum;k++)
         {
-            ROS_WARN("fail to set param XY_KD");
-        }
-        IsSuccess=param_to_formation2.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("2 fail to set param XY_KD");
-        }
-        IsSuccess=param_to_formation3.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("3 fail to set param XY_KD");
+            IsSuccess=param_set_clinet[k].call(srv);
+            if(!IsSuccess)
+            {
+                ROS_WARN("%d fail to set param XY_KD",k);
+            }
+
         }
     }
     ros::param::get("/dynamic/ROTT",tempParam);
@@ -264,20 +231,14 @@ void commander::update(const ros::TimerEvent &event)
         rotTheta = tempParam;
         srv.request.param_id = "ROTT";
         srv.request.param_value = tempParam;
-        IsSuccess=param_to_formation.call(srv);
-        if(!IsSuccess)
+        for(int k=0;k<uavNum;k++)
         {
-            ROS_WARN("fail to set param ROTT");
-        }
-        IsSuccess=param_to_formation2.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("2 fail to set param ROTT");
-        }
-        IsSuccess=param_to_formation3.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("3 fail to set param ROTT");
+            IsSuccess=param_set_clinet[k].call(srv);
+            if(!IsSuccess)
+            {
+                ROS_WARN("%d fail to set param ROTT",k);
+            }
+
         }
     }
     ros::param::get("/dynamic/ENV_K_ALPHA",tempParam);
@@ -286,20 +247,14 @@ void commander::update(const ros::TimerEvent &event)
         env_k_alpha = tempParam;
         srv.request.param_id = "ENV_K_ALPHA";
         srv.request.param_value = tempParam;
-        IsSuccess=param_to_formation.call(srv);
-        if(!IsSuccess)
+        for(int k=0;k<uavNum;k++)
         {
-            ROS_WARN("fail to set param ENV_K_ALPHA");
-        }
-        IsSuccess=param_to_formation2.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("2 fail to set param ENV_K_ALPHA");
-        }
-        IsSuccess=param_to_formation3.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("3 fail to set param ENV_K_ALPHA");
+            IsSuccess=param_set_clinet[k].call(srv);
+            if(!IsSuccess)
+            {
+                ROS_WARN("%d fail to set param ENV_K_ALPHA",k);
+            }
+
         }
     }
     ros::param::get("/dynamic/ENV_K_BETA",tempParam);
@@ -308,20 +263,14 @@ void commander::update(const ros::TimerEvent &event)
         env_k_beta = tempParam;
         srv.request.param_id = "ENV_K_BETA";
         srv.request.param_value = tempParam;
-        IsSuccess=param_to_formation.call(srv);
-        if(!IsSuccess)
+        for(int k=0;k<uavNum;k++)
         {
-            ROS_WARN("fail to set param ENV_K_BETA");
-        }
-        IsSuccess=param_to_formation2.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("2 fail to set param ENV_K_BETA");
-        }
-        IsSuccess=param_to_formation3.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("3 fail to set param ENV_K_BETA");
+            IsSuccess=param_set_clinet[k].call(srv);
+            if(!IsSuccess)
+            {
+                ROS_WARN("%d fail to set param ENV_K_BETA",k);
+            }
+
         }
     }
     ros::param::get("/dynamic/ENV_K_GAMMA",tempParam);
@@ -330,20 +279,14 @@ void commander::update(const ros::TimerEvent &event)
         env_k_gamma = tempParam;
         srv.request.param_id = "ENV_K_GAMMA";
         srv.request.param_value = tempParam;
-        IsSuccess=param_to_formation.call(srv);
-        if(!IsSuccess)
+        for(int k=0;k<uavNum;k++)
         {
-            ROS_WARN("fail to set param ENV_K_GAMMA");
-        }
-        IsSuccess=param_to_formation2.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("2 fail to set param ENV_K_GAMMA");
-        }
-        IsSuccess=param_to_formation3.call(srv);
-        if(!IsSuccess)
-        {
-            ROS_WARN("3 fail to set param ENV_K_GAMMA");
+            IsSuccess=param_set_clinet[k].call(srv);
+            if(!IsSuccess)
+            {
+                ROS_WARN("%d fail to set param ENV_K_GAMMA",k);
+            }
+
         }
     }
 
@@ -351,42 +294,42 @@ void commander::update(const ros::TimerEvent &event)
 
 void commander::initParam()
 {
-        bool IsParamGot;
-        bool IsAllParamGot = true;
-        IsParamGot = ros::param::get("/dynamic/HEI_KI",hei_ki);
-        IsAllParamGot = IsAllParamGot && IsParamGot;
-        IsParamGot = ros::param::get("/dynamic/HEI_KP1",hei_kp1);
-        IsAllParamGot = IsAllParamGot && IsParamGot;
-        IsParamGot = ros::param::get("/dynamic/HEI_KP2",hei_kp2);
-        IsAllParamGot = IsAllParamGot && IsParamGot;
-        IsParamGot = ros::param::get("/dynamic/HEI_KPDIV",hei_kpdiv);
-        IsAllParamGot = IsAllParamGot && IsParamGot;
-        IsParamGot = ros::param::get("/dynamic/HEI_KD",hei_kd);
-        IsAllParamGot = IsAllParamGot && IsParamGot;
-        IsParamGot = ros::param::get("/dynamic/HEI_BIAS",hei_bias);
-        IsAllParamGot = IsAllParamGot && IsParamGot;
-        IsParamGot = ros::param::get("/dynamic/XY_BIAS",xy_bias);
-        IsAllParamGot = IsAllParamGot && IsParamGot;
-        IsParamGot = ros::param::get("/dynamic/XY_KP",xy_kp);
-        IsAllParamGot = IsAllParamGot && IsParamGot;
-        IsParamGot = ros::param::get("/dynamic/XY_KD",xy_kd);
-        IsAllParamGot = IsAllParamGot && IsParamGot;
-        IsParamGot = ros::param::get("/dynamic/XY_KI",xy_ki);
-        IsAllParamGot = IsAllParamGot && IsParamGot;
-        IsParamGot = ros::param::get("/dynamic/ENV_K_ALPHA",env_k_alpha);
-        IsAllParamGot = IsAllParamGot && IsParamGot;
-        IsParamGot = ros::param::get("/dynamic/ENV_K_BETA",env_k_beta);
-        IsAllParamGot = IsAllParamGot && IsParamGot;
-        IsParamGot = ros::param::get("/dynamic/ROTT",rotTheta);
-        IsAllParamGot = IsAllParamGot && IsParamGot;
-        if (IsAllParamGot == true)
-        {
-            ROS_INFO("Get param successfully");
-        }
-        else
-        {
-            ROS_ERROR("Fail to get param");
-        }
+    bool IsParamGot;
+    bool IsAllParamGot = true;
+    IsParamGot = ros::param::get("/dynamic/HEI_KI",hei_ki);
+    IsAllParamGot = IsAllParamGot && IsParamGot;
+    IsParamGot = ros::param::get("/dynamic/HEI_KP1",hei_kp1);
+    IsAllParamGot = IsAllParamGot && IsParamGot;
+    IsParamGot = ros::param::get("/dynamic/HEI_KP2",hei_kp2);
+    IsAllParamGot = IsAllParamGot && IsParamGot;
+    IsParamGot = ros::param::get("/dynamic/HEI_KPDIV",hei_kpdiv);
+    IsAllParamGot = IsAllParamGot && IsParamGot;
+    IsParamGot = ros::param::get("/dynamic/HEI_KD",hei_kd);
+    IsAllParamGot = IsAllParamGot && IsParamGot;
+    IsParamGot = ros::param::get("/dynamic/HEI_BIAS",hei_bias);
+    IsAllParamGot = IsAllParamGot && IsParamGot;
+    IsParamGot = ros::param::get("/dynamic/XY_BIAS",xy_bias);
+    IsAllParamGot = IsAllParamGot && IsParamGot;
+    IsParamGot = ros::param::get("/dynamic/XY_KP",xy_kp);
+    IsAllParamGot = IsAllParamGot && IsParamGot;
+    IsParamGot = ros::param::get("/dynamic/XY_KD",xy_kd);
+    IsAllParamGot = IsAllParamGot && IsParamGot;
+    IsParamGot = ros::param::get("/dynamic/XY_KI",xy_ki);
+    IsAllParamGot = IsAllParamGot && IsParamGot;
+    IsParamGot = ros::param::get("/dynamic/ENV_K_ALPHA",env_k_alpha);
+    IsAllParamGot = IsAllParamGot && IsParamGot;
+    IsParamGot = ros::param::get("/dynamic/ENV_K_BETA",env_k_beta);
+    IsAllParamGot = IsAllParamGot && IsParamGot;
+    IsParamGot = ros::param::get("/dynamic/ROTT",rotTheta);
+    IsAllParamGot = IsAllParamGot && IsParamGot;
+    if (IsAllParamGot == true)
+    {
+        ROS_INFO("Get param successfully");
+    }
+    else
+    {
+        ROS_ERROR("Fail to get param");
+    }
 }
 
 
