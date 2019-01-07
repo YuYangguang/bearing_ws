@@ -36,11 +36,11 @@
       <arg name="system_id" value="$(arg uav5_id)" />
     </include>
   </group>
-  <group ns="uav0">
+ <!-- <group ns="uav0">
     <include file="$(find formation)/launch/formation.launch">
       <arg name="system_id" value="$(arg target_id)" />
     </include>
-  </group>
+  </group>-->
 
 
     <node name="dynamic" pkg="formation" type="dynamic_reconfigure_node"  output="screen" >
