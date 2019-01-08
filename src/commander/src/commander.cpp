@@ -41,7 +41,11 @@ commander::commander(int argc, char **argv, const char *name)
     {
         strnum<<(k+1);
         uavName = "/uav"+strnum.str();
+        //ROS_ERROR("uav name is %s", uavName.c_str());
         param_set_clinet[k] = nh->serviceClient<bearing_common::HParamSetSrv>(uavName+"/formation/host_param/set_param");
+        strnum.str("");
+
+
     }
 }
 

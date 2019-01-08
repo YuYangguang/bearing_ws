@@ -739,7 +739,7 @@ void smarteye::Formation::encircleCtr(double targetHei)
 
 void smarteye::Formation::circleCtr(double targetHei)
 {
-
+    float desiredRadius = 4;
     double currentTime = ros::Time::now().toSec();
     if(systemID == TARGET_ID)  //目标控制
     {
@@ -778,7 +778,7 @@ void smarteye::Formation::circleCtr(double targetHei)
                 rotateMatrix <<cos(rotTheta),-sin(rotTheta),
                         sin(rotTheta),cos(rotTheta);
                 ctrOutput = rotateMatrix*ctrOutput;
-                float desiredRadius = 2;
+
                 float currentRadius = pow((allUavPos.agentPosition[0].x-targetInfo.pose.pose.position.x),2)+
                         pow((allUavPos.agentPosition[0].y-targetInfo.pose.pose.position.y),2);
                 velocitySet.twist.linear.x = ctrOutput[0]+targetInfo.twist.twist.linear.x
@@ -834,8 +834,8 @@ void smarteye::Formation::circleCtr(double targetHei)
                 Eigen::Vector2d outFromTar;  //从目标得到的控制分量
                 Eigen::Vector2d temp2 = (Id-preBearing*preBearing.transpose())*preBea_star;
                 Eigen::Vector2d temp1 = (Id-nextBearing*nextBearing.transpose())*nextBea_star;
-                outFromNei = env_k_alpha*(temp1 - temp2);
-                outFromTar = env_k_beta*(Id-tbearing*tbearing.transpose())*tbearing_star;
+                outFromNei = env_k_alpha*desiredRadius *(temp1 - temp2);
+                outFromTar = env_k_beta*desiredRadius*(Id-tbearing*tbearing.transpose())*tbearing_star;
                 ctrOutput = outFromNei + outFromTar;
 
                 heiCtr.currentHei = localPose.pose.position.z;
@@ -846,20 +846,20 @@ void smarteye::Formation::circleCtr(double targetHei)
                 rotateMatrix <<cos(rotTheta),-sin(rotTheta),
                         sin(rotTheta),cos(rotTheta);
                 ctrOutput = rotateMatrix*ctrOutput;
-                float desiredRadius = 4;
+
                 float currentRadius = pow((allUavPos.agentPosition[systemID-1].x-targetInfo.pose.pose.position.x),2)+
                         pow((allUavPos.agentPosition[systemID-1].y-targetInfo.pose.pose.position.y),2);
                 velocitySet.twist.linear.x = ctrOutput[0]+targetInfo.twist.twist.linear.x
-                        -(sqrt(currentRadius)-desiredRadius)*tbearing[0]*env_k_gamma;
+                        -(sqrt(currentRadius)-desiredRadius)*tbearing[0]*env_k_gamma*desiredRadius ;
                 velocitySet.twist.linear.y = ctrOutput[1]+targetInfo.twist.twist.linear.y
-                        -(sqrt(currentRadius)-desiredRadius)*tbearing[1]*env_k_gamma;
+                        -(sqrt(currentRadius)-desiredRadius)*tbearing[1]*env_k_gamma*desiredRadius;
                 ROS_INFO("current radius is %f",sqrt(currentRadius));
 //                if(systemID ==1)
 //                {
 //                    ROS_ERROR("target height is %f",targetHei);
 //                }
                 setVelPub.publish(velocitySet);
-                ROS_INFO("gamma is %f",env_k_gamma);
+                //ROS_INFO("gamma is %f",env_k_gamma);
             }
         }
         else
