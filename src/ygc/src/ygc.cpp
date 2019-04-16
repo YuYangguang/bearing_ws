@@ -241,11 +241,8 @@ void ygcClass::ReceiveGazeboInfo(const gazebo_msgs::ModelStates::ConstPtr &msg)
                 allPositions[uavID-1].x = msg->pose[i].position.x;
                 allPositions[uavID-1].y = msg->pose[i].position.y;
                 allPositions[uavID-1].z = msg->pose[i].position.z;
-                //                if(delta_time<0.3 &&(delta_time>1E-2))
-                //                {
                 agentVel.bearings[uavID-1].x  = msg->twist[i].linear.x;
                 agentVel.bearings[uavID-1].y  = msg->twist[i].linear.y;
-                //                }
 
             }
 
@@ -570,10 +567,10 @@ void ygcClass::cacExpBearing()
     if(uavNum == 1)
     {
         int i = 0;
-        double agentTheta = 2*YGC_PI*i/3+YGC_PI;
-        double nextAgentTheta = 2*YGC_PI*(i+1)/3+YGC_PI;
+        double agentTheta = 2*YGC_PI*i/3;
+        double nextAgentTheta = 2*YGC_PI*(i+1)/3;
         expBearing.bearings[0].x = 0;
-        expBearing.bearings[0].y = -1;
+        expBearing.bearings[0].y = 1;
         initTarDesBearing[0] = sin(agentTheta);
         initTarDesBearing[1] = cos(agentTheta);
         desiredBearing = rotateMatrix*initTarDesBearing;
@@ -585,13 +582,13 @@ void ygcClass::cacExpBearing()
     {
         for(int i=0;i<uavNum;i++)
         {
-            double agentTheta = 2*YGC_PI*i/uavNum+YGC_PI;
-            double nextAgentTheta = 2*YGC_PI*(i+1)/uavNum+YGC_PI;
+            double agentTheta = 2*YGC_PI*i/uavNum;
+            double nextAgentTheta = 2*YGC_PI*(i+1)/uavNum;
             float dis =2*sin(YGC_PI/uavNum);  //单位圆上正多边形的边长
             if(i== (uavNum-1))
             {
-                initDesBearing[0] = (sin(agentTheta)-sin(YGC_PI))/dis;
-                initDesBearing[1] = (cos(agentTheta)-cos(YGC_PI))/dis;
+                initDesBearing[0] = (sin(agentTheta)-sin(0))/dis;
+                initDesBearing[1] = (cos(agentTheta)-cos(0))/dis;
 
             }
             else

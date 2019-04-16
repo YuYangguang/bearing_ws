@@ -55,10 +55,7 @@
   </group>-->
 
 
-    <node name="dynamic" pkg="formation" type="dynamic_reconfigure_node"  output="screen" >
- </node>
-  <node name="paramSetClient" pkg="formation" type="paramSetClient.py"  output="screen" >
- </node>
+
  <!--<node name="rqt_node" pkg="rqt_reconfigure" type="rqt_reconfigure"  output="screen" >
  </node>-->
 </launch>

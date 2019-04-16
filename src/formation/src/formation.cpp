@@ -384,7 +384,7 @@ void smarteye::Formation::update(const ros::TimerEvent &event)
         }
         else
         {
-            circleCtr(TARGET_HEIGHT_SIMU+0.1*systemID);
+            circleCtr(TARGET_HEIGHT_SIMU+0.8*systemID);
         }
         break;
     }
@@ -745,6 +745,8 @@ void smarteye::Formation::circleCtr(double targetHei)
     {
         velocitySet.twist.linear.x = 0.6*sin(currentTime/4/M_PI);
         velocitySet.twist.linear.y = 0.6*cos(currentTime/4/M_PI);
+ //       velocitySet.twist.linear.x = 0.3;
+ //       velocitySet.twist.linear.y = 0.3;
         setVelPub.publish(velocitySet);
     }
     else
@@ -850,9 +852,9 @@ void smarteye::Formation::circleCtr(double targetHei)
                 float currentRadius = pow((allUavPos.agentPosition[systemID-1].x-targetInfo.pose.pose.position.x),2)+
                         pow((allUavPos.agentPosition[systemID-1].y-targetInfo.pose.pose.position.y),2);
                 velocitySet.twist.linear.x = ctrOutput[0]+targetInfo.twist.twist.linear.x
-                        -(sqrt(currentRadius)-desiredRadius)*tbearing[0]*env_k_gamma*desiredRadius ;
+                        -(sqrt(currentRadius)-desiredRadius)*tbearing[0]*env_k_gamma ;
                 velocitySet.twist.linear.y = ctrOutput[1]+targetInfo.twist.twist.linear.y
-                        -(sqrt(currentRadius)-desiredRadius)*tbearing[1]*env_k_gamma*desiredRadius;
+                        -(sqrt(currentRadius)-desiredRadius)*tbearing[1]*env_k_gamma;
                 ROS_INFO("current radius is %f",sqrt(currentRadius));
 //                if(systemID ==1)
 //                {
