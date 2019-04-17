@@ -1,16 +1,16 @@
 <launch>
 
 <node name="keyboard" pkg="keyboard" type="keyboard"/>
-<arg name="uav_num" default="5" />
+<arg name="uav_num" default="1" />
 <arg name="TriggerFlag" default="false" />
 <arg name="SimuFlag" default="true" />
 
-    <node name="dynamic" pkg="formation" type="dynamic_reconfigure_node"  output="screen" >
+<!--     <node name="dynamic" pkg="formation" type="dynamic_reconfigure_node"  output="screen" >
  </node>
   <node name="paramSetClient" pkg="formation" type="paramSetClient.py"  output="screen" >
  </node>
   <node name="rqt" pkg="rqt_reconfigure" type="rqt_reconfigure"  output="screen" >
- </node>
+ </node>-->
   <node name="commander" pkg="commander" type="commander_node"  output="screen" >
 <param name="uav_num" value="$(arg uav_num)" />
   </node>
