@@ -3,7 +3,7 @@ tags
 doc/html
 doc/*.log
 .DS_Store
-build*
+
 .nfs*
 share/
 __pycache__
